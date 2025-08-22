@@ -516,7 +516,7 @@
                     
                     showAlert('Erfolgreich angemeldet! Weiterleitung...', 'success');
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/api/v1/dashboard';
                     }, 1000);
                 } else {
                     throw new Error('Ungültige Anmeldedaten');
@@ -562,7 +562,7 @@
 
                 showAlert('Account erfolgreich erstellt! Weiterleitung...', 'success');
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = '/api/v1/dashboard';
                 }, 1000);
             } catch (error) {
                 hideLoading();
@@ -576,7 +576,7 @@
 
         // Check if user is already logged in
         if (localStorage.getItem('user')) {
-            window.location.href = 'dashboard.html';
+            window.location.href = '/api/v1/dashboard';
         }
     </script>
 </body>

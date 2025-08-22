@@ -370,6 +370,30 @@
             color: var(--gray-300);
         }
 
+        /* Team overview styles */
+        .team-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .expense-amount {
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 0.875rem;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
         /* Page sections */
         .page-section {
             display: none;
@@ -550,9 +574,9 @@
                         </div>
                     </div>
 
-                    <!-- Quick Actions -->
-                    <div class="quick-actions">
-                        <a href="travel-form.html" class="quick-action">
+                    <!-- Quick Actions - Employee Only -->
+                    <div class="quick-actions" id="employee-actions">
+                        <a href="/api/v1/travel-form" class="quick-action">
                             <i class="fas fa-plus-circle"></i>
                             <strong>Neue Reise anlegen</strong>
                             <div>Erstellen Sie eine neue Geschäftsreise</div>
@@ -569,13 +593,43 @@
                         </a>
                     </div>
 
-                    <!-- Recent Travels -->
-                    <div class="travel-list">
+                    <!-- Controller Actions - Controller Only -->
+                    <div class="quick-actions" id="controller-actions" style="display: none;">
+                        <a href="#" class="quick-action" onclick="showPage('approvals')">
+                            <i class="fas fa-check-circle"></i>
+                            <strong>Genehmigungen</strong>
+                            <div>Reisen zur Freigabe prüfen</div>
+                        </a>
+                        <a href="#" class="quick-action" onclick="showPage('team')">
+                            <i class="fas fa-users"></i>
+                            <strong>Team-Übersicht</strong>
+                            <div>Alle Mitarbeiter und deren Reisen</div>
+                        </a>
+                        <a href="#" class="quick-action" onclick="showPage('reports')">
+                            <i class="fas fa-chart-bar"></i>
+                            <strong>Team-Berichte</strong>
+                            <div>Auswertungen und Statistiken</div>
+                        </a>
+                    </div>
+
+                    <!-- Employee Travel List -->
+                    <div class="travel-list" id="employee-travels">
                         <div class="travel-list-header">
-                            <div class="travel-list-title">Letzte Reisen</div>
+                            <div class="travel-list-title">Meine Reisen</div>
                             <a href="#" onclick="showPage('travels')" class="btn btn-secondary">Alle anzeigen</a>
                         </div>
                         <div id="recent-travels">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Controller Team Overview -->
+                    <div class="travel-list" id="controller-overview" style="display: none;">
+                        <div class="travel-list-header">
+                            <div class="travel-list-title">Team-Übersicht</div>
+                            <a href="#" onclick="showPage('team')" class="btn btn-secondary">Details anzeigen</a>
+                        </div>
+                        <div id="team-overview">
                             <!-- Will be populated by JavaScript -->
                         </div>
                     </div>
@@ -607,7 +661,7 @@
         function initUser() {
             const userData = localStorage.getItem('user');
             if (!userData) {
-                window.location.href = 'index.html';
+                window.location.href = '/';
                 return;
             }
 
@@ -618,6 +672,33 @@
             const roleText = currentUser.role === 'controller' ? 'Controlling' : 'Mitarbeiter';
             document.getElementById('user-role').textContent = roleText;
 
+            // Show role-specific UI elements
+            if (currentUser.role === 'controller') {
+                // Show controller sections
+                document.getElementById('controller-section').style.display = 'block';
+                document.getElementById('controller-actions').style.display = 'grid';
+                document.getElementById('controller-overview').style.display = 'block';
+                
+                // Hide employee sections
+                document.getElementById('employee-actions').style.display = 'none';
+                document.getElementById('employee-travels').style.display = 'none';
+                
+                // Load controller-specific data
+                loadTeamOverview();
+            } else {
+                // Show employee sections
+                document.getElementById('employee-actions').style.display = 'grid';
+                document.getElementById('employee-travels').style.display = 'block';
+                
+                // Hide controller sections
+                document.getElementById('controller-section').style.display = 'none';
+                document.getElementById('controller-actions').style.display = 'none';
+                document.getElementById('controller-overview').style.display = 'none';
+                
+                // Load employee-specific data
+                loadTravels();
+            }
+
             // Show controller sections if user is controller
             if (currentUser.role === 'controller') {
                 document.getElementById('controller-section').style.display = 'block';
@@ -626,9 +707,13 @@
         }
 
         function updateControllerStats() {
-            // Update stats for controller role
+            // Update stats for controller role - showing team data
             document.getElementById('active-travels').textContent = '23';
             document.getElementById('pending-receipts').textContent = '8';
+            
+            // Update stat labels for controller context
+            document.querySelector('#active-travels').nextElementSibling.textContent = 'Team-Reisen';
+            document.querySelector('#pending-receipts').nextElementSibling.textContent = 'Zur Freigabe';
         }
 
         // Page navigation
@@ -706,6 +791,91 @@
             `;
         }
 
+        // Controller-specific functions
+        async function loadTeamOverview() {
+            try {
+                // For demo purposes, we'll show sample team data
+                const teamData = [
+                    {
+                        employee: 'Max Mustermann',
+                        department: 'Vertrieb',
+                        activeTravels: 2,
+                        pendingExpenses: '€1,250',
+                        lastActivity: '2025-08-20',
+                        status: 'active'
+                    },
+                    {
+                        employee: 'Sarah Schmidt',
+                        department: 'Marketing',
+                        activeTravels: 1,
+                        pendingExpenses: '€890',
+                        lastActivity: '2025-08-19',
+                        status: 'pending'
+                    },
+                    {
+                        employee: 'Michael Weber',
+                        department: 'IT',
+                        activeTravels: 0,
+                        pendingExpenses: '€0',
+                        lastActivity: '2025-08-15',
+                        status: 'approved'
+                    },
+                    {
+                        employee: 'Lisa Müller',
+                        department: 'HR',
+                        activeTravels: 3,
+                        pendingExpenses: '€2,100',
+                        lastActivity: '2025-08-21',
+                        status: 'pending'
+                    }
+                ];
+                displayTeamOverview(teamData);
+            } catch (error) {
+                console.error('Error loading team data:', error);
+                showTeamEmptyState();
+            }
+        }
+
+        function displayTeamOverview(teamData) {
+            const container = document.getElementById('team-overview');
+            
+            container.innerHTML = teamData.map(member => `
+                <div class="travel-item">
+                    <div class="travel-info">
+                        <h3>${member.employee}</h3>
+                        <div class="travel-meta">
+                            ${member.department} • ${member.activeTravels} aktive Reisen • Letzte Aktivität: ${formatDate(member.lastActivity)}
+                        </div>
+                    </div>
+                    <div class="team-stats">
+                        <span class="expense-amount">${member.pendingExpenses}</span>
+                        <span class="travel-status status-${member.status}">
+                            ${getTeamStatusText(member.status)}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showTeamEmptyState() {
+            document.getElementById('team-overview').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h3>Keine Team-Daten</h3>
+                    <p>Laden Sie Ihr Team ein, um deren Reisen zu verwalten</p>
+                </div>
+            `;
+        }
+
+        function getTeamStatusText(status) {
+            const statusMap = {
+                'active': 'Aktiv',
+                'pending': 'Zur Prüfung',
+                'approved': 'Genehmigt'
+            };
+            return statusMap[status] || status;
+        }
+
         function formatDate(dateString) {
             return new Date(dateString).toLocaleDateString('de-DE');
         }
@@ -722,13 +892,12 @@
 
         function logout() {
             localStorage.removeItem('user');
-            window.location.href = 'index.html';
+            window.location.href = '/';
         }
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
             initUser();
-            loadTravels();
         });
     </script>
 </body>

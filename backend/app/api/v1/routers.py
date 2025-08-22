@@ -20,6 +20,14 @@ async def landing_page():
         return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
     return HTMLResponse(content="<h1>TravelExpense - Landing page not found</h1>")
 
+@router.get("/landingpage", response_class=HTMLResponse)
+async def landingpage():
+    """Serve the main landing page with authentication at /landingpage."""
+    index_path = frontend_dir / "index.html"
+    if index_path.exists():
+        return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>TravelExpense - Landing page not found</h1>")
+
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard():
     """Serve the dashboard page."""

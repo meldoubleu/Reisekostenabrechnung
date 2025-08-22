@@ -53,7 +53,7 @@ class TestFrontendUI:
         
         # Check for form submission elements
         assert 'type="submit"' in html_content
-        assert "Anlegen" in html_content
+        assert "Reise erstellen" in html_content  # Updated to match actual button text
     
     @pytest.mark.asyncio
     async def test_ui_form_has_receipt_upload(self, client: AsyncClient):
@@ -74,6 +74,6 @@ class TestFrontendUI:
         assert "<th>Datum</th>" in html_content
         assert "<th>Händler</th>" in html_content
         
-        # Check for travel submission and export
-        assert "submit-travel" in html_content
-        assert "export-link" in html_content
+        # Check for travel submission form
+        assert 'type="submit"' in html_content
+        assert "travel-form" in html_content

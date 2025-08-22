@@ -322,6 +322,73 @@
             }
         }
 
+        /* Receipt Upload Styles */
+        .receipt-upload {
+            margin-top: 1rem;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--gray-300);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--gray-50);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .upload-content i {
+            font-size: 2rem;
+            color: var(--gray-400);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-content p {
+            font-weight: 500;
+            color: var(--gray-600);
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-content small {
+            color: var(--gray-500);
+        }
+
+        .receipts-table {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .receipts-table.has-receipts {
+            display: block;
+        }
+
+        .receipts-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .receipts-table th,
+        .receipts-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .receipts-table th {
+            background: var(--gray-50);
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
         .travel-preview {
             background: var(--gray-50);
             border: 1px solid var(--gray-200);
@@ -371,7 +438,7 @@
 <body>
     <header class="header">
         <div class="header-left">
-            <a href="dashboard.html" class="back-btn">
+            <a href="/api/v1/dashboard" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
                 Zurück zum Dashboard
             </a>
@@ -489,6 +556,51 @@
                     </div>
                 </div>
 
+                <!-- Receipt Upload Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-receipt"></i>
+                        Belege hochladen (optional)
+                    </div>
+                    <div class="section-content">
+                        <div class="receipt-upload">
+                            <div class="form-group">
+                                <label for="receipt-upload">
+                                    Belege (Bilder oder PDFs)
+                                </label>
+                                <div class="upload-area" id="receipt-form">
+                                    <input type="file" id="receipt-upload" name="receipts" multiple 
+                                           accept="image/*,application/pdf" style="display: none;">
+                                    <div class="upload-content" onclick="document.getElementById('receipt-upload').click();">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Klicken Sie hier oder ziehen Sie Dateien hierher</p>
+                                        <small>Unterstützte Formate: JPG, PNG, PDF</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Receipt Display Table -->
+                            <div class="receipts-table" id="receipts">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Datei</th>
+                                            <th>Betrag</th>
+                                            <th>Währung</th>
+                                            <th>Datum</th>
+                                            <th>Händler</th>
+                                            <th>Aktionen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="receipts-list">
+                                        <!-- Receipt entries will be added here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Travel Preview -->
                 <div class="travel-preview" id="travel-preview">
                     <div class="preview-title">
@@ -516,7 +628,7 @@
                 </div>
 
                 <div class="form-actions">
-                    <a href="dashboard.html" class="btn btn-secondary">
+                    <a href="/api/v1/dashboard" class="btn btn-secondary">
                         <i class="fas fa-times"></i>
                         Abbrechen
                     </a>
@@ -689,7 +801,7 @@
                 showAlert('Reise erfolgreich erstellt! Weiterleitung...', 'success');
                 
                 setTimeout(() => {
-                    window.location.href = `travel-details.html?id=${travel.id}`;
+                    window.location.href = `/api/v1/dashboard`;
                 }, 1500);
                 
             } catch (error) {
@@ -706,6 +818,67 @@
             element.addEventListener('input', updatePreview);
         });
 
+        // Receipt upload functionality
+        let uploadedReceipts = [];
+
+        document.getElementById('receipt-upload').addEventListener('change', function(event) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                if (file.type.startsWith('image/') || file.type === 'application/pdf') {
+                    uploadedReceipts.push({
+                        file: file,
+                        name: file.name,
+                        amount: '',
+                        currency: 'EUR',
+                        date: '',
+                        merchant: ''
+                    });
+                }
+            });
+            displayReceipts();
+        });
+
+        function displayReceipts() {
+            const tableContainer = document.getElementById('receipts');
+            const tbody = document.getElementById('receipts-list');
+            
+            if (uploadedReceipts.length > 0) {
+                tableContainer.classList.add('has-receipts');
+                tbody.innerHTML = uploadedReceipts.map((receipt, index) => `
+                    <tr>
+                        <td>${receipt.name}</td>
+                        <td><input type="number" step="0.01" placeholder="0.00" value="${receipt.amount}" 
+                                   onchange="updateReceiptField(${index}, 'amount', this.value)"></td>
+                        <td><select onchange="updateReceiptField(${index}, 'currency', this.value)">
+                                <option value="EUR" ${receipt.currency === 'EUR' ? 'selected' : ''}>EUR</option>
+                                <option value="USD" ${receipt.currency === 'USD' ? 'selected' : ''}>USD</option>
+                                <option value="CHF" ${receipt.currency === 'CHF' ? 'selected' : ''}>CHF</option>
+                            </select></td>
+                        <td><input type="date" value="${receipt.date}" 
+                                   onchange="updateReceiptField(${index}, 'date', this.value)"></td>
+                        <td><input type="text" placeholder="Händler" value="${receipt.merchant}" 
+                                   onchange="updateReceiptField(${index}, 'merchant', this.value)"></td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeReceipt(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button></td>
+                    </tr>
+                `).join('');
+            } else {
+                tableContainer.classList.remove('has-receipts');
+            }
+        }
+
+        function updateReceiptField(index, field, value) {
+            if (uploadedReceipts[index]) {
+                uploadedReceipts[index][field] = value;
+            }
+        }
+
+        function removeReceipt(index) {
+            uploadedReceipts.splice(index, 1);
+            displayReceipts();
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             setDefaultDates();
@@ -713,7 +886,7 @@
             
             // Check if user is logged in
             if (!localStorage.getItem('user')) {
-                window.location.href = 'index.html';
+                window.location.href = '/';
             }
         });
     </script>
