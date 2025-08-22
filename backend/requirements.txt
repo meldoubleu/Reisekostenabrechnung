@@ -1,0 +1,15 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+sqlalchemy==2.0.34
+psycopg[binary,pool]==3.2.3
+python-multipart==0.0.9
+pydantic==2.9.2
+pydantic-settings==2.5.2
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+Pillow==10.4.0
+pytesseract==0.3.13
+reportlab==4.2.2
+jinja2==3.1.4
+pdf2image==1.17.0
+aiosqlite==0.20.0

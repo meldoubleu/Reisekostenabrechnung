@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reise anlegen</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; }
+      form { display: grid; gap: 0.75rem; max-width: 520px; }
+      input, textarea, select { padding: 0.5rem; font-size: 1rem; }
+      label { font-weight: 600; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+      .card { border: 1px solid #e5e7eb; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+      button { background: #111827; color: white; border: 0; padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer; }
+      table { border-collapse: collapse; margin-top: 1rem; }
+      th, td { border: 1px solid #e5e7eb; padding: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Neue Reise</h1>
+    <div class="card">
+      <form id="travel-form">
+        <label> Mitarbeiter <input name="employee_name" required /></label>
+        <div class="row">
+          <label> Start <input type="datetime-local" name="start_at" required /></label>
+          <label> Ende <input type="datetime-local" name="end_at" required /></label>
+        </div>
+        <div class="row">
+          <label> Stadt <input name="destination_city" required /></label>
+          <label> Land <input name="destination_country" required /></label>
+        </div>
+        <label> Zweck <textarea name="purpose" required></textarea></label>
+        <label> Kostenstelle <input name="cost_center" /></label>
+        <button type="submit">Anlegen</button>
+      </form>
+    </div>
+
+    <div id="current" style="display:none;" class="card">
+      <h2>Reise</h2>
+      <pre id="travel"></pre>
+
+      <h3>Beleg hochladen</h3>
+      <form id="receipt-form">
+        <input type="file" name="file" accept="image/*,application/pdf" />
+        <button type="submit">Upload</button>
+      </form>
+
+      <h3>Belege</h3>
+      <table id="receipts"><thead><tr><th>Datei</th><th>Betrag</th><th>Währung</th><th>Datum</th><th>Händler</th></tr></thead><tbody></tbody></table>
+
+      <button id="submit-travel">Reise einreichen</button>
+      <a id="export-link" href="#" target="_blank">Export PDF</a>
+    </div>
+
+    <script>
+      const api = (p) => `${location.origin}/api/v1${p}`;
+      let travelId = null;
+
+      document.getElementById('travel-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        // Convert datetime-local to ISO
+        for (const key of ['start_at','end_at']) {
+          const v = data.get(key);
+          if (v) data.set(key, new Date(v).toISOString());
+        }
+        const res = await fetch(api('/travels/'), { method: 'POST', body: data });
+        const t = await res.json();
+        travelId = t.id;
+        document.getElementById('current').style.display = 'block';
+        document.getElementById('travel').textContent = JSON.stringify(t, null, 2);
+        refreshReceipts();
+      });
+
+      async function refreshReceipts(){
+        const res = await fetch(api('/travels/'));
+        const list = await res.json();
+        const t = list.find(x => x.id === travelId);
+        const tbody = document.querySelector('#receipts tbody');
+        tbody.innerHTML = '';
+        (t?.receipts || []).forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${r.file_path.split('/').pop()}</td><td>${r.amount ?? ''}</td><td>${r.currency ?? ''}</td><td>${r.date ?? ''}</td><td>${r.merchant ?? ''}</td>`;
+          tbody.appendChild(tr);
+        });
+        document.getElementById('export-link').href = api(`/travels/${travelId}/export`);
+      }
+
+      document.getElementById('receipt-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = new FormData(e.target);
+        const res = await fetch(api(`/travels/${travelId}/receipts`), { method: 'POST', body: data });
+        await res.json();
+        await refreshReceipts();
+      });
+
+      document.getElementById('submit-travel').addEventListener('click', async () => {
+        await fetch(api(`/travels/${travelId}/submit`), { method: 'POST' });
+        alert('Eingereicht.');
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+.venv
+venv/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+
+# VSCode
+.vscode/
+
+# Data/Uploads
+uploads/
+media/
+
+# Byte-compiled / cache
+.mypy_cache/
+.pytest_cache/
+
+# Local env files
+.env.local
+.env.*
+
+# Build
+build/
+dist/
