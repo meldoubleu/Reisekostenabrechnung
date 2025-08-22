@@ -47,7 +47,13 @@ async def create_travel(
     db.add(travel)
     await db.commit()
     await db.refresh(travel)
-    return travel
+    
+    # Load the receipts relationship to avoid serialization issues
+    result = await db.execute(
+        select(Travel).options(selectinload(Travel.receipts)).where(Travel.id == travel.id)
+    )
+    travel_with_receipts = result.scalar_one()
+    return travel_with_receipts
 
 
 @router.get("/", response_model=List[TravelSchema])
@@ -102,7 +108,13 @@ async def submit_travel(travel_id: int, db: AsyncSession = Depends(get_db)):
     travel.status = TravelStatus.submitted
     await db.commit()
     await db.refresh(travel)
-    return travel
+    
+    # Load the receipts relationship to avoid serialization issues
+    result = await db.execute(
+        select(Travel).options(selectinload(Travel.receipts)).where(Travel.id == travel_id)
+    )
+    travel_with_receipts = result.scalar_one()
+    return travel_with_receipts
 
 
 @router.get("/{travel_id}/export", response_class=FileResponse)

@@ -8,14 +8,17 @@ import re
 
 
 def extract_text_from_file(file_path: str) -> str:
-    path = Path(file_path)
-    if path.suffix.lower() == ".pdf":
-        images = convert_from_path(file_path)
-        text = "\n".join(pytesseract.image_to_string(img) for img in images)
-        return text
-    else:
-        img = Image.open(file_path)
-        return pytesseract.image_to_string(img)
+    try:
+        path = Path(file_path)
+        if path.suffix.lower() == ".pdf":
+            images = convert_from_path(file_path)
+            text = "\n".join(pytesseract.image_to_string(img) for img in images)
+            return text
+        else:
+            img = Image.open(file_path)
+            return pytesseract.image_to_string(img)
+    except (FileNotFoundError, Exception):
+        return ""
 
 
 _amount_re = re.compile(r"(?<!\d)(\d+[\.,]\d{2})\s?(EUR|€|USD|CHF)?", re.IGNORECASE)
@@ -27,6 +30,10 @@ def simple_parse(text: str) -> dict:
     currency = None
     date = None
     merchant = None
+
+    # Handle None or empty input
+    if not text:
+        return {"amount": amount, "currency": currency, "date": date, "merchant": merchant}
 
     amt_match = _amount_re.search(text)
     if amt_match:

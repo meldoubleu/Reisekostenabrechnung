@@ -35,6 +35,7 @@ class ReceiptCreate(ReceiptBase):
 
 class Receipt(ReceiptBase):
     id: int
+    travel_id: int
     file_path: str
 
     class Config:

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TravelExpense - Moderne Reisekostenabrechnung</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero {
+            color: var(--white);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature i {
+            font-size: 1.25rem;
+            color: var(--success);
+        }
+
+        .auth-card {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-width: 400px;
+            width: 100%;
+            justify-self: center;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: var(--gray-100);
+            border-radius: 0.5rem;
+            padding: 0.25rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            border-radius: 0.375rem;
+            background: transparent;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .auth-tab.active {
+            background: var(--white);
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .role-option {
+            padding: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .role-option:hover {
+            border-color: var(--primary);
+        }
+
+        .role-option.selected {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .role-option i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .role-option h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .role-option p {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn:disabled {
+            background: var(--gray-400);
+            cursor: not-allowed;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        .form-footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        #login-form {
+            display: block;
+        }
+
+        #register-form {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .auth-card {
+                margin-top: 2rem;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .spinner {
+            border: 3px solid var(--gray-200);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>TravelExpense</h1>
+            <p>Die moderne SaaS-Lösung für Ihre Reisekostenabrechnung. Einfach, schnell und vollautomatisiert.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-camera"></i>
+                    <span>OCR-Belegscannung in Sekunden</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Automatische Kategorisierung</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>PDF-Export mit einem Klick</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Revisionssichere Archivierung</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Mobile App für unterwegs</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-users"></i>
+                    <span>Team-Management & Freigaben</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">Anmelden</button>
+                <button class="auth-tab" onclick="switchTab('register')">Registrieren</button>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <!-- Login Form -->
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">E-Mail-Adresse</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">Passwort</label>
+                    <input type="password" id="login-password" required>
+                </div>
+
+                <button type="submit" class="btn">Anmelden</button>
+                
+                <div class="form-footer">
+                    <a href="#" onclick="showForgotPassword()">Passwort vergessen?</a>
+                </div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-company">Unternehmen</label>
+                    <input type="text" id="register-company" placeholder="Ihre Firma GmbH" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-name">Vollständiger Name</label>
+                    <input type="text" id="register-name" placeholder="Max Mustermann" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-email">E-Mail-Adresse</label>
+                    <input type="email" id="register-email" placeholder="max@firma.de" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-password">Passwort</label>
+                    <input type="password" id="register-password" placeholder="Mindestens 8 Zeichen" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Ihre Rolle im Unternehmen</label>
+                    <div class="role-selector">
+                        <div class="role-option" onclick="selectRole('employee')" data-role="employee">
+                            <i class="fas fa-user"></i>
+                            <h3>Mitarbeiter</h3>
+                            <p>Reisen erstellen und Belege einreichen</p>
+                        </div>
+                        <div class="role-option" onclick="selectRole('controller')" data-role="controller">
+                            <i class="fas fa-user-tie"></i>
+                            <h3>Controlling</h3>
+                            <p>Reisen prüfen und genehmigen</p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="selected-role" required>
+                </div>
+
+                <button type="submit" class="btn">Kostenlosen Account erstellen</button>
+                
+                <div class="form-footer">
+                    Mit der Registrierung stimmen Sie unseren <a href="#">AGB</a> und der <a href="#">Datenschutzerklärung</a> zu.
+                </div>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Einen Moment bitte...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const tabs = document.querySelectorAll('.auth-tab');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            if (tab === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+            
+            clearAlerts();
+        }
+
+        // Role selection
+        function selectRole(role) {
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            document.querySelector(`[data-role="${role}"]`).classList.add('selected');
+            document.getElementById('selected-role').value = role;
+        }
+
+        // Alert system
+        function showAlert(message, type = 'error') {
+            const container = document.getElementById('alert-container');
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
+        function clearAlerts() {
+            document.getElementById('alert-container').innerHTML = '';
+        }
+
+        // Loading state
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            const activeTab = document.querySelector('.auth-tab.active').textContent;
+            if (activeTab === 'Anmelden') {
+                document.getElementById('login-form').style.display = 'block';
+            } else {
+                document.getElementById('register-form').style.display = 'block';
+            }
+        }
+
+        // API calls
+        const API_BASE = '/api/v1';
+
+        async function apiCall(endpoint, data = null, method = 'GET') {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+
+            if (data) {
+                options.body = JSON.stringify(data);
+            }
+
+            const response = await fetch(API_BASE + endpoint, options);
+            return response.json();
+        }
+
+        // Form handlers
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlerts();
+            showLoading();
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                // Simulate API call (replace with actual authentication)
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // For demo purposes, accept any email/password
+                if (email && password) {
+                    localStorage.setItem('user', JSON.stringify({
+                        email: email,
+                        name: email.split('@')[0],
+                        role: email.includes('controller') ? 'controller' : 'employee',
+                        company: 'Demo GmbH'
+                    }));
+                    
+                    showAlert('Erfolgreich angemeldet! Weiterleitung...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                } else {
+                    throw new Error('Ungültige Anmeldedaten');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert(error.message || 'Fehler bei der Anmeldung');
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlerts();
+
+            const company = document.getElementById('register-company').value;
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const role = document.getElementById('selected-role').value;
+
+            if (!role) {
+                showAlert('Bitte wählen Sie Ihre Rolle aus');
+                return;
+            }
+
+            if (password.length < 8) {
+                showAlert('Das Passwort muss mindestens 8 Zeichen lang sein');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                localStorage.setItem('user', JSON.stringify({
+                    email: email,
+                    name: name,
+                    role: role,
+                    company: company
+                }));
+
+                showAlert('Account erfolgreich erstellt! Weiterleitung...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            } catch (error) {
+                hideLoading();
+                showAlert(error.message || 'Fehler bei der Registrierung');
+            }
+        });
+
+        function showForgotPassword() {
+            showAlert('Passwort-Reset-Link wurde an Ihre E-Mail-Adresse gesendet.', 'success');
+        }
+
+        // Check if user is already logged in
+        if (localStorage.getItem('user')) {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</body>
+</html>

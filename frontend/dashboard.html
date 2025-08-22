@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TravelExpense</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            border-right: 1px solid var(--gray-200);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .user-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 0.5rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .user-role {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-top: 0.25rem;
+        }
+
+        .user-company {
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            margin-top: 0.25rem;
+        }
+
+        .nav {
+            flex: 1;
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--gray-600);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--gray-50);
+            color: var(--gray-900);
+        }
+
+        .nav-item.active {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            border-right: 3px solid var(--primary);
+        }
+
+        .nav-item i {
+            width: 20px;
+            margin-right: 0.75rem;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--gray-100);
+            color: var(--gray-600);
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: var(--gray-200);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-200);
+        }
+
+        .content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-200);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .stat-card .card-icon {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--error);
+        }
+
+        /* Travel List */
+        .travel-list {
+            background: var(--white);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-200);
+        }
+
+        .travel-list-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .travel-list-title {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .travel-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .travel-item:hover {
+            background: var(--gray-50);
+        }
+
+        .travel-item:last-child {
+            border-bottom: none;
+        }
+
+        .travel-info h3 {
+            font-weight: 500;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .travel-meta {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        .travel-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-draft {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+
+        .status-submitted {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--gray-500);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--gray-300);
+        }
+
+        /* Page sections */
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+
+            .main {
+                order: 1;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-action {
+            background: var(--white);
+            border: 2px dashed var(--gray-200);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--gray-600);
+        }
+
+        .quick-action:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .quick-action i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">TravelExpense</div>
+                <div class="user-info">
+                    <div class="user-name" id="user-name">Max Mustermann</div>
+                    <div class="user-role" id="user-role">Mitarbeiter</div>
+                    <div class="user-company" id="user-company">Demo GmbH</div>
+                </div>
+            </div>
+
+            <nav class="nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Hauptmenü</div>
+                    <a class="nav-item active" onclick="showPage('dashboard')">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <a class="nav-item" onclick="showPage('travels')">
+                        <i class="fas fa-plane"></i>
+                        Meine Reisen
+                    </a>
+                    <a class="nav-item" onclick="showPage('receipts')">
+                        <i class="fas fa-receipt"></i>
+                        Belege
+                    </a>
+                </div>
+
+                <div class="nav-section" id="controller-section" style="display: none;">
+                    <div class="nav-section-title">Controlling</div>
+                    <a class="nav-item" onclick="showPage('approvals')">
+                        <i class="fas fa-check-circle"></i>
+                        Genehmigungen
+                    </a>
+                    <a class="nav-item" onclick="showPage('reports')">
+                        <i class="fas fa-chart-bar"></i>
+                        Berichte
+                    </a>
+                    <a class="nav-item" onclick="showPage('team')">
+                        <i class="fas fa-users"></i>
+                        Team-Übersicht
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Verwaltung</div>
+                    <a class="nav-item" onclick="showPage('profile')">
+                        <i class="fas fa-user"></i>
+                        Profil
+                    </a>
+                    <a class="nav-item" onclick="showPage('settings')">
+                        <i class="fas fa-cog"></i>
+                        Einstellungen
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Abmelden
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <header class="header">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="header-actions">
+                    <a href="travel-form.html" class="btn">
+                        <i class="fas fa-plus"></i>
+                        Neue Reise
+                    </a>
+                </div>
+            </header>
+
+            <main class="content">
+                <!-- Dashboard Page -->
+                <div id="dashboard-page" class="page-section active">
+                    <div class="dashboard-grid">
+                        <div class="card stat-card">
+                            <div class="card-header">
+                                <div class="card-title">Aktuelle Reisen</div>
+                                <div class="card-icon">
+                                    <i class="fas fa-plane"></i>
+                                </div>
+                            </div>
+                            <div class="stat-number" id="active-travels">5</div>
+                            <div class="stat-label">Laufende Reisen</div>
+                            <div class="stat-change positive">+2 diese Woche</div>
+                        </div>
+
+                        <div class="card stat-card">
+                            <div class="card-header">
+                                <div class="card-title">Offene Belege</div>
+                                <div class="card-icon">
+                                    <i class="fas fa-file-invoice"></i>
+                                </div>
+                            </div>
+                            <div class="stat-number" id="pending-receipts">12</div>
+                            <div class="stat-label">Zur Prüfung</div>
+                            <div class="stat-change negative">-3 seit gestern</div>
+                        </div>
+
+                        <div class="card stat-card">
+                            <div class="card-header">
+                                <div class="card-title">Diesen Monat</div>
+                                <div class="card-icon">
+                                    <i class="fas fa-euro-sign"></i>
+                                </div>
+                            </div>
+                            <div class="stat-number">€2,450</div>
+                            <div class="stat-label">Ausgaben</div>
+                            <div class="stat-change positive">Budget: 85% verbraucht</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <a href="travel-form.html" class="quick-action">
+                            <i class="fas fa-plus-circle"></i>
+                            <strong>Neue Reise anlegen</strong>
+                            <div>Erstellen Sie eine neue Geschäftsreise</div>
+                        </a>
+                        <a href="#" class="quick-action" onclick="showPage('receipts')">
+                            <i class="fas fa-camera"></i>
+                            <strong>Beleg scannen</strong>
+                            <div>Foto aufnehmen und automatisch erkennen</div>
+                        </a>
+                        <a href="#" class="quick-action" onclick="showPage('reports')">
+                            <i class="fas fa-download"></i>
+                            <strong>Bericht herunterladen</strong>
+                            <div>PDF-Export Ihrer Abrechnungen</div>
+                        </a>
+                    </div>
+
+                    <!-- Recent Travels -->
+                    <div class="travel-list">
+                        <div class="travel-list-header">
+                            <div class="travel-list-title">Letzte Reisen</div>
+                            <a href="#" onclick="showPage('travels')" class="btn btn-secondary">Alle anzeigen</a>
+                        </div>
+                        <div id="recent-travels">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other pages will be added here -->
+                <div id="travels-page" class="page-section">
+                    <h2>Meine Reisen</h2>
+                    <p>Hier werden alle Ihre Reisen angezeigt...</p>
+                </div>
+
+                <div id="receipts-page" class="page-section">
+                    <h2>Belege verwalten</h2>
+                    <p>Hier können Sie Ihre Belege verwalten...</p>
+                </div>
+
+                <div id="profile-page" class="page-section">
+                    <h2>Profil</h2>
+                    <p>Hier können Sie Ihr Profil bearbeiten...</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // User management
+        let currentUser = null;
+
+        function initUser() {
+            const userData = localStorage.getItem('user');
+            if (!userData) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(userData);
+            document.getElementById('user-name').textContent = currentUser.name;
+            document.getElementById('user-company').textContent = currentUser.company;
+            
+            const roleText = currentUser.role === 'controller' ? 'Controlling' : 'Mitarbeiter';
+            document.getElementById('user-role').textContent = roleText;
+
+            // Show controller sections if user is controller
+            if (currentUser.role === 'controller') {
+                document.getElementById('controller-section').style.display = 'block';
+                updateControllerStats();
+            }
+        }
+
+        function updateControllerStats() {
+            // Update stats for controller role
+            document.getElementById('active-travels').textContent = '23';
+            document.getElementById('pending-receipts').textContent = '8';
+        }
+
+        // Page navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected page
+            document.getElementById(pageId + '-page').classList.add('active');
+
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update page title
+            const titles = {
+                'dashboard': 'Dashboard',
+                'travels': 'Meine Reisen',
+                'receipts': 'Belege',
+                'approvals': 'Genehmigungen',
+                'reports': 'Berichte',
+                'team': 'Team-Übersicht',
+                'profile': 'Profil',
+                'settings': 'Einstellungen'
+            };
+            document.getElementById('page-title').textContent = titles[pageId] || 'Dashboard';
+        }
+
+        // Load travel data
+        async function loadTravels() {
+            try {
+                const response = await fetch('/api/v1/travels/');
+                const travels = await response.json();
+                displayRecentTravels(travels.slice(0, 5)); // Show only 5 most recent
+            } catch (error) {
+                console.error('Error loading travels:', error);
+                showEmptyState();
+            }
+        }
+
+        function displayRecentTravels(travels) {
+            const container = document.getElementById('recent-travels');
+            
+            if (!travels || travels.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            container.innerHTML = travels.map(travel => `
+                <div class="travel-item">
+                    <div class="travel-info">
+                        <h3>${travel.destination_city}, ${travel.destination_country}</h3>
+                        <div class="travel-meta">
+                            ${travel.employee_name} • ${formatDate(travel.start_at)} - ${formatDate(travel.end_at)}
+                        </div>
+                    </div>
+                    <div class="travel-status status-${travel.status}">
+                        ${getStatusText(travel.status)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showEmptyState() {
+            document.getElementById('recent-travels').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-plane"></i>
+                    <h3>Noch keine Reisen</h3>
+                    <p>Erstellen Sie Ihre erste Geschäftsreise</p>
+                </div>
+            `;
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('de-DE');
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'draft': 'Entwurf',
+                'submitted': 'Eingereicht',
+                'approved': 'Genehmigt',
+                'rejected': 'Abgelehnt'
+            };
+            return statusMap[status] || status;
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            initUser();
+            loadTravels();
+        });
+    </script>
+</body>
+</html>

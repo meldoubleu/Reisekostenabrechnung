@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neue Reise - TravelExpense</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+        }
+
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            color: var(--gray-500);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .form-card {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-200);
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-subtitle {
+            color: var(--gray-500);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 0.75rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            background: var(--white);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .required {
+            color: var(--error);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-200);
+        }
+
+        .btn:disabled {
+            background: var(--gray-300);
+            color: var(--gray-500);
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 3px solid var(--gray-200);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .quick-fill {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-fill-title {
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quick-fill-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-fill-btn {
+            padding: 0.5rem 0.75rem;
+            background: var(--white);
+            border: 1px solid var(--gray-300);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-fill-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem auto;
+                padding: 0 0.5rem;
+            }
+
+            .form-card {
+                padding: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+        }
+
+        .travel-preview {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .preview-title {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .preview-item {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .preview-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .preview-value {
+            color: var(--gray-900);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="dashboard.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Zurück zum Dashboard
+            </a>
+            <div class="logo">TravelExpense</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-card">
+            <div id="alert-container"></div>
+
+            <div class="form-header">
+                <h1 class="form-title">Neue Geschäftsreise anlegen</h1>
+                <p class="form-subtitle">Erstellen Sie eine neue Reisekostenabrechnung mit allen erforderlichen Details.</p>
+            </div>
+
+            <!-- Quick Fill Options -->
+            <div class="quick-fill">
+                <div class="quick-fill-title">
+                    <i class="fas fa-magic"></i>
+                    Schnelleingabe
+                </div>
+                <div class="quick-fill-buttons">
+                    <button class="quick-fill-btn" onclick="fillBusinessTrip()">Geschäftsreise</button>
+                    <button class="quick-fill-btn" onclick="fillTraining()">Schulung/Training</button>
+                    <button class="quick-fill-btn" onclick="fillConference()">Konferenz/Messe</button>
+                    <button class="quick-fill-btn" onclick="fillCustomer()">Kundentermin</button>
+                    <button class="quick-fill-btn" onclick="clearForm()">Formular leeren</button>
+                </div>
+            </div>
+
+            <form id="travel-form">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Grunddaten der Reise
+                    </h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="employee-name">
+                                Mitarbeiter <span class="required">*</span>
+                            </label>
+                            <input type="text" id="employee-name" name="employee_name" value="Max Mustermann" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cost-center">Kostenstelle</label>
+                            <select id="cost-center" name="cost_center">
+                                <option value="">Kostenstelle wählen</option>
+                                <option value="SALES-001">SALES-001 - Vertrieb</option>
+                                <option value="IT-001">IT-001 - IT-Abteilung</option>
+                                <option value="HR-001">HR-001 - Personal</option>
+                                <option value="MKT-001">MKT-001 - Marketing</option>
+                                <option value="FIN-001">FIN-001 - Finanzen</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="purpose">
+                                Zweck der Reise <span class="required">*</span>
+                            </label>
+                            <textarea id="purpose" name="purpose" placeholder="Beschreiben Sie den Geschäftszweck Ihrer Reise..." required>Kundentermin und Projektabschluss bei ABC GmbH</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Travel Details -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        Reisedaten
+                    </h2>
+                    <div class="form-grid">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="start-date">
+                                    Startdatum <span class="required">*</span>
+                                </label>
+                                <input type="datetime-local" id="start-date" name="start_at" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="end-date">
+                                    Enddatum <span class="required">*</span>
+                                </label>
+                                <input type="datetime-local" id="end-date" name="end_at" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="destination-city">
+                                    Zielstadt <span class="required">*</span>
+                                </label>
+                                <input type="text" id="destination-city" name="destination_city" value="München" placeholder="z.B. Berlin" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="destination-country">
+                                    Zielland <span class="required">*</span>
+                                </label>
+                                <select id="destination-country" name="destination_country" required>
+                                    <option value="">Land wählen</option>
+                                    <option value="Germany" selected>Deutschland</option>
+                                    <option value="Austria">Österreich</option>
+                                    <option value="Switzerland">Schweiz</option>
+                                    <option value="France">Frankreich</option>
+                                    <option value="Netherlands">Niederlande</option>
+                                    <option value="Belgium">Belgien</option>
+                                    <option value="United Kingdom">Vereinigtes Königreich</option>
+                                    <option value="United States">USA</option>
+                                    <option value="Other">Sonstiges</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Travel Preview -->
+                <div class="travel-preview" id="travel-preview">
+                    <div class="preview-title">
+                        <i class="fas fa-eye"></i>
+                        Reiseübersicht
+                    </div>
+                    <div class="preview-grid">
+                        <div class="preview-item">
+                            <div class="preview-label">Mitarbeiter</div>
+                            <div class="preview-value" id="preview-employee">-</div>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-label">Reiseziel</div>
+                            <div class="preview-value" id="preview-destination">-</div>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-label">Zeitraum</div>
+                            <div class="preview-value" id="preview-dates">-</div>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-label">Dauer</div>
+                            <div class="preview-value" id="preview-duration">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="dashboard.html" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Abbrechen
+                    </a>
+                    <button type="button" class="btn btn-secondary" onclick="togglePreview()">
+                        <i class="fas fa-eye"></i>
+                        Vorschau
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                        <i class="fas fa-save"></i>
+                        Reise erstellen
+                    </button>
+                </div>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Reise wird erstellt...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set default datetime values
+        function setDefaultDates() {
+            const now = new Date();
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(8, 0, 0, 0);
+            
+            const dayAfter = new Date(tomorrow);
+            dayAfter.setDate(dayAfter.getDate() + 2);
+            dayAfter.setHours(18, 0, 0, 0);
+            
+            const formatDateTime = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            };
+            
+            document.getElementById('start-date').value = formatDateTime(tomorrow);
+            document.getElementById('end-date').value = formatDateTime(dayAfter);
+        }
+
+        // Quick fill functions
+        function fillBusinessTrip() {
+            document.getElementById('purpose').value = 'Geschäftstermin und Projektbesprechung';
+            document.getElementById('destination-city').value = 'Hamburg';
+            document.getElementById('cost-center').value = 'SALES-001';
+        }
+
+        function fillTraining() {
+            document.getElementById('purpose').value = 'Teilnahme an Schulung und Weiterbildungsmaßnahme';
+            document.getElementById('destination-city').value = 'Frankfurt';
+            document.getElementById('cost-center').value = 'HR-001';
+        }
+
+        function fillConference() {
+            document.getElementById('purpose').value = 'Besuch der Branchenmesse und Networking';
+            document.getElementById('destination-city').value = 'Köln';
+            document.getElementById('cost-center').value = 'MKT-001';
+        }
+
+        function fillCustomer() {
+            document.getElementById('purpose').value = 'Kundentermin und Projektabschluss';
+            document.getElementById('destination-city').value = 'Stuttgart';
+            document.getElementById('cost-center').value = 'SALES-001';
+        }
+
+        function clearForm() {
+            document.getElementById('travel-form').reset();
+            setDefaultDates();
+            updatePreview();
+        }
+
+        // Preview functionality
+        function togglePreview() {
+            const preview = document.getElementById('travel-preview');
+            if (preview.style.display === 'none' || !preview.style.display) {
+                updatePreview();
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        function updatePreview() {
+            const employee = document.getElementById('employee-name').value || '-';
+            const city = document.getElementById('destination-city').value || '-';
+            const country = document.getElementById('destination-country').value || '-';
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            
+            document.getElementById('preview-employee').textContent = employee;
+            document.getElementById('preview-destination').textContent = city + (country !== '-' ? ', ' + country : '');
+            
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                
+                document.getElementById('preview-dates').textContent = 
+                    start.toLocaleDateString('de-DE') + ' - ' + end.toLocaleDateString('de-DE');
+                document.getElementById('preview-duration').textContent = duration + ' Tag' + (duration !== 1 ? 'e' : '');
+            } else {
+                document.getElementById('preview-dates').textContent = '-';
+                document.getElementById('preview-duration').textContent = '-';
+            }
+        }
+
+        // Alert system
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alert-container');
+            container.innerHTML = `
+                <div class="alert alert-${type}">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                    ${message}
+                </div>
+            `;
+            container.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearAlerts() {
+            document.getElementById('alert-container').innerHTML = '';
+        }
+
+        // Form submission
+        document.getElementById('travel-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlerts();
+            
+            const formData = new FormData(e.target);
+            
+            // Convert datetime-local to ISO
+            for (const key of ['start_at', 'end_at']) {
+                const value = formData.get(key);
+                if (value) {
+                    formData.set(key, new Date(value).toISOString());
+                }
+            }
+            
+            // Validate dates
+            const startDate = new Date(formData.get('start_at'));
+            const endDate = new Date(formData.get('end_at'));
+            
+            if (endDate <= startDate) {
+                showAlert('Das Enddatum muss nach dem Startdatum liegen.', 'error');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('travel-form').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('submit-btn').disabled = true;
+            
+            try {
+                const response = await fetch('/api/v1/travels/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Fehler beim Erstellen der Reise');
+                }
+                
+                const travel = await response.json();
+                
+                showAlert('Reise erfolgreich erstellt! Weiterleitung...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = `travel-details.html?id=${travel.id}`;
+                }, 1500);
+                
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('travel-form').style.display = 'block';
+                document.getElementById('submit-btn').disabled = false;
+                
+                showAlert(error.message || 'Fehler beim Erstellen der Reise', 'error');
+            }
+        });
+
+        // Form validation and preview updates
+        document.querySelectorAll('input, select, textarea').forEach(element => {
+            element.addEventListener('input', updatePreview);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setDefaultDates();
+            updatePreview();
+            
+            // Check if user is logged in
+            if (!localStorage.getItem('user')) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

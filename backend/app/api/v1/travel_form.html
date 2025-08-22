@@ -12,6 +12,8 @@
       .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
       .card { border: 1px solid #e5e7eb; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
       button { background: #111827; color: white; border: 0; padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer; }
+      button[type="button"] { background: #6b7280; }
+      button:hover { opacity: 0.9; }
       table { border-collapse: collapse; margin-top: 1rem; }
       th, td { border: 1px solid #e5e7eb; padding: 0.5rem; }
     </style>
@@ -20,18 +22,21 @@
     <h1>Neue Reise</h1>
     <div class="card">
       <form id="travel-form">
-        <label> Mitarbeiter <input name="employee_name" required /></label>
+        <label> Mitarbeiter <input name="employee_name" value="Max Mustermann" required /></label>
         <div class="row">
           <label> Start <input type="datetime-local" name="start_at" required /></label>
           <label> Ende <input type="datetime-local" name="end_at" required /></label>
         </div>
         <div class="row">
-          <label> Stadt <input name="destination_city" required /></label>
-          <label> Land <input name="destination_country" required /></label>
+          <label> Stadt <input name="destination_city" value="München" required /></label>
+          <label> Land <input name="destination_country" value="Germany" required /></label>
         </div>
-        <label> Zweck <textarea name="purpose" required></textarea></label>
-        <label> Kostenstelle <input name="cost_center" /></label>
-        <button type="submit">Anlegen</button>
+        <label> Zweck <textarea name="purpose" required>Kundentermin und Projektabschluss bei ABC GmbH</textarea></label>
+        <label> Kostenstelle <input name="cost_center" value="SALES-001" /></label>
+        <div class="row">
+          <button type="submit">Anlegen</button>
+          <button type="button" onclick="resetForm()">Formular zurücksetzen</button>
+        </div>
       </form>
     </div>
 
@@ -55,6 +60,69 @@
     <script>
       const api = (p) => `${location.origin}/api/v1${p}`;
       let travelId = null;
+
+      // Set default datetime values on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        const now = new Date();
+        const startDate = new Date(now);
+        startDate.setDate(startDate.getDate() + 1); // Tomorrow
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 2); // Day after tomorrow
+        
+        // Format datetime for datetime-local input (YYYY-MM-DDTHH:MM)
+        const formatDateTime = (date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          const hours = String(date.getHours()).padStart(2, '0');
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+          return `${year}-${month}-${day}T${hours}:${minutes}`;
+        };
+        
+        // Set start date to tomorrow 08:00
+        startDate.setHours(8, 0, 0, 0);
+        document.querySelector('input[name="start_at"]').value = formatDateTime(startDate);
+        
+        // Set end date to 3 days from now 18:00 (2-day business trip)
+        endDate.setHours(18, 0, 0, 0);
+        document.querySelector('input[name="end_at"]').value = formatDateTime(endDate);
+      });
+
+      // Function to reset form to default values
+      function resetForm() {
+        // Reset to default values
+        document.querySelector('input[name="employee_name"]').value = 'Max Mustermann';
+        document.querySelector('input[name="destination_city"]').value = 'München';
+        document.querySelector('input[name="destination_country"]').value = 'Germany';
+        document.querySelector('textarea[name="purpose"]').value = 'Kundentermin und Projektabschluss bei ABC GmbH';
+        document.querySelector('input[name="cost_center"]').value = 'SALES-001';
+        
+        // Reset datetime values
+        const now = new Date();
+        const startDate = new Date(now);
+        startDate.setDate(startDate.getDate() + 1);
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 2);
+        
+        const formatDateTime = (date) => {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          const hours = String(date.getHours()).padStart(2, '0');
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+          return `${year}-${month}-${day}T${hours}:${minutes}`;
+        };
+        
+        startDate.setHours(8, 0, 0, 0);
+        document.querySelector('input[name="start_at"]').value = formatDateTime(startDate);
+        
+        endDate.setHours(18, 0, 0, 0);
+        document.querySelector('input[name="end_at"]').value = formatDateTime(endDate);
+        
+        // Hide travel details if shown
+        document.getElementById('current').style.display = 'none';
+        travelId = null;
+      }
 
       document.getElementById('travel-form').addEventListener('submit', async (e) => {
         e.preventDefault();
