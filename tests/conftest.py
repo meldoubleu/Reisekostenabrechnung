@@ -1,7 +1,7 @@
 import pytest
 import pytest_asyncio
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy import text
 import tempfile
 import os
@@ -33,24 +33,23 @@ async def test_engine():
 
 
 @pytest_asyncio.fixture
-async def test_db(test_engine):
-    """Create a test database session."""
-    TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False)
+async def client(test_engine):
+    """Create a test client with test database."""
+    # Create a session maker for the test engine
+    TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False, class_=AsyncSession)
     
-    async with TestSessionLocal() as session:
-        yield session
-        # Rollback any changes after each test
-        await session.rollback()
-
-
-@pytest_asyncio.fixture
-async def client(test_db):
-    """Create a test client with dependency overrides."""
+    # Clear the database before each test
+    async with test_engine.begin() as conn:
+        # Delete all data from tables (in correct order due to foreign keys)
+        await conn.execute(text("DELETE FROM receipts"))
+        await conn.execute(text("DELETE FROM travels"))
     
-    def override_get_db():
-        return test_db
+    async def get_test_db():
+        async with TestSessionLocal() as session:
+            yield session
     
-    app.dependency_overrides[get_db] = override_get_db
+    # Override the dependency
+    app.dependency_overrides[get_db] = get_test_db
     
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac

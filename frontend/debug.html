@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - TravelExpense</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-box { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        pre { 
+            background: #f8f8f8; 
+            padding: 10px; 
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <h1>TravelExpense Debug Page</h1>
+    
+    <div class="debug-box">
+        <h2>LocalStorage Content</h2>
+        <pre id="localStorage-content">Loading...</pre>
+        <button onclick="refreshData()">Refresh</button>
+        <button onclick="clearData()">Clear LocalStorage</button>
+    </div>
+
+    <div class="debug-box">
+        <h2>Quick Login Tests</h2>
+        <button onclick="loginAsController()">Login as Controller</button>
+        <button onclick="loginAsEmployee()">Login as Employee</button>
+        <button onclick="goToDashboard()">Go to Dashboard</button>
+    </div>
+
+    <div class="debug-box">
+        <h2>Role Detection Test</h2>
+        <div id="role-test">Click "Test Role Detection" to check current user role</div>
+        <button onclick="testRoleDetection()">Test Role Detection</button>
+    </div>
+
+    <script>
+        function refreshData() {
+            const userData = localStorage.getItem('user');
+            const content = document.getElementById('localStorage-content');
+            
+            if (userData) {
+                try {
+                    const parsed = JSON.parse(userData);
+                    content.textContent = JSON.stringify(parsed, null, 2);
+                } catch (e) {
+                    content.textContent = 'Error parsing JSON: ' + userData;
+                }
+            } else {
+                content.textContent = 'No user data found in localStorage';
+            }
+        }
+
+        function clearData() {
+            localStorage.clear();
+            refreshData();
+            alert('LocalStorage cleared!');
+        }
+
+        function loginAsController() {
+            const controllerUser = {
+                email: 'controller@demo.com',
+                name: 'Controller User',
+                role: 'controller',
+                company: 'Demo GmbH'
+            };
+            localStorage.setItem('user', JSON.stringify(controllerUser));
+            refreshData();
+            alert('Logged in as controller! Check the localStorage content above.');
+        }
+
+        function loginAsEmployee() {
+            const employeeUser = {
+                email: 'employee@demo.com',
+                name: 'Employee User',
+                role: 'employee',
+                company: 'Demo GmbH'
+            };
+            localStorage.setItem('user', JSON.stringify(employeeUser));
+            refreshData();
+            alert('Logged in as employee! Check the localStorage content above.');
+        }
+
+        function goToDashboard() {
+            window.location.href = '/api/v1/dashboard';
+        }
+
+        function testRoleDetection() {
+            const userData = localStorage.getItem('user');
+            const testDiv = document.getElementById('role-test');
+            
+            if (!userData) {
+                testDiv.innerHTML = '<strong style="color: red;">No user data found!</strong>';
+                return;
+            }
+
+            try {
+                const user = JSON.parse(userData);
+                const isController = user.role === 'controller';
+                
+                testDiv.innerHTML = `
+                    <strong>User Email:</strong> ${user.email}<br>
+                    <strong>User Name:</strong> ${user.name}<br>
+                    <strong>User Role:</strong> ${user.role}<br>
+                    <strong>Role Type:</strong> ${typeof user.role}<br>
+                    <strong>Is Controller:</strong> ${isController}<br>
+                    <strong style="color: ${isController ? 'green' : 'blue'};">
+                        Expected Dashboard: ${isController ? 'CONTROLLER (no Neue Reise button)' : 'EMPLOYEE (with Neue Reise button)'}
+                    </strong>
+                `;
+            } catch (e) {
+                testDiv.innerHTML = '<strong style="color: red;">Error parsing user data: ' + e.message + '</strong>';
+            }
+        }
+
+        // Auto-refresh on page load
+        refreshData();
+    </script>
+</body>
+</html>

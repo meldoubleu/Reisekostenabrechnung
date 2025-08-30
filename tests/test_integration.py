@@ -14,11 +14,11 @@ class TestTravelWorkflow:
     @pytest.mark.asyncio
     async def test_complete_travel_workflow(self, client: AsyncClient, sample_travel_data, temp_upload_dir):
         """Test the complete workflow: create travel -> upload receipts -> submit -> export."""
-        
+    
         # Step 1: Create a travel
         create_response = await client.post(
             "/api/v1/travels/",
-            data=sample_travel_data
+            json=sample_travel_data
         )
         assert create_response.status_code == 200
         travel_data = create_response.json()
@@ -66,14 +66,15 @@ class TestTravelWorkflow:
     @pytest.mark.asyncio
     async def test_upload_different_file_types(self, client: AsyncClient, sample_travel_data, temp_upload_dir):
         """Test uploading different types of receipt files."""
-        
+    
         # Create a travel
         create_response = await client.post(
             "/api/v1/travels/",
-            data=sample_travel_data
+            json=sample_travel_data
         )
+        assert create_response.status_code == 200
         travel_id = create_response.json()["id"]
-        
+    
         # Test PNG upload
         png_img = Image.new('RGB', (100, 100), color='red')
         png_buffer = io.BytesIO()
@@ -131,20 +132,20 @@ class TestTravelWorkflow:
     @pytest.mark.asyncio
     async def test_travel_list_ordering(self, client: AsyncClient, sample_travel_data):
         """Test that travels are returned in the correct order (newest first)."""
-        
+    
         # Create multiple travels
         travel_ids = []
         for i in range(3):
             modified_data = sample_travel_data.copy()
             modified_data["employee_name"] = f"Employee {i}"
-            
+    
             response = await client.post(
                 "/api/v1/travels/",
-                data=modified_data
+                json=modified_data
             )
             assert response.status_code == 200
             travel_ids.append(response.json()["id"])
-        
+    
         # Get list of travels
         response = await client.get("/api/v1/travels/")
         assert response.status_code == 200

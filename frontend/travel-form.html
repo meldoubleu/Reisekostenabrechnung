@@ -327,6 +327,26 @@
             margin-top: 1rem;
         }
 
+        .scan-receipt-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--primary-light);
+            border: 2px dashed var(--primary);
+            border-radius: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+
+        .scan-receipt-btn:hover {
+            background: rgba(37, 99, 235, 0.2);
+        }
+
         .upload-area {
             border: 2px dashed var(--gray-300);
             border-radius: 0.5rem;
@@ -436,459 +456,231 @@
     </style>
 </head>
 <body>
-    <header class="header">
+    <div class="header">
         <div class="header-left">
-            <a href="/api/v1/dashboard" class="back-btn">
+            <a href="#" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
-                Zurück zum Dashboard
+                Zurück
             </a>
             <div class="logo">TravelExpense</div>
         </div>
-    </header>
+    </div>
 
     <div class="container">
         <div class="form-card">
-            <div id="alert-container"></div>
-
             <div class="form-header">
-                <h1 class="form-title">Neue Geschäftsreise anlegen</h1>
-                <p class="form-subtitle">Erstellen Sie eine neue Reisekostenabrechnung mit allen erforderlichen Details.</p>
-            </div>
-
-            <!-- Quick Fill Options -->
-            <div class="quick-fill">
-                <div class="quick-fill-title">
-                    <i class="fas fa-magic"></i>
-                    Schnelleingabe
-                </div>
-                <div class="quick-fill-buttons">
-                    <button class="quick-fill-btn" onclick="fillBusinessTrip()">Geschäftsreise</button>
-                    <button class="quick-fill-btn" onclick="fillTraining()">Schulung/Training</button>
-                    <button class="quick-fill-btn" onclick="fillConference()">Konferenz/Messe</button>
-                    <button class="quick-fill-btn" onclick="fillCustomer()">Kundentermin</button>
-                    <button class="quick-fill-btn" onclick="clearForm()">Formular leeren</button>
-                </div>
+                <h1 class="form-title">Neue Reise</h1>
+                <p class="form-subtitle">Bitte füllen Sie das folgende Formular aus, um eine neue Reise zu erstellen.</p>
             </div>
 
             <form id="travel-form">
-                <!-- Basic Information -->
                 <div class="form-section">
-                    <h2 class="section-title">
-                        <i class="fas fa-info-circle"></i>
-                        Grunddaten der Reise
-                    </h2>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="employee-name">
-                                Mitarbeiter <span class="required">*</span>
-                            </label>
-                            <input type="text" id="employee-name" name="employee_name" value="Max Mustermann" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="cost-center">Kostenstelle</label>
-                            <select id="cost-center" name="cost_center">
-                                <option value="">Kostenstelle wählen</option>
-                                <option value="SALES-001">SALES-001 - Vertrieb</option>
-                                <option value="IT-001">IT-001 - IT-Abteilung</option>
-                                <option value="HR-001">HR-001 - Personal</option>
-                                <option value="MKT-001">MKT-001 - Marketing</option>
-                                <option value="FIN-001">FIN-001 - Finanzen</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="purpose">
-                                Zweck der Reise <span class="required">*</span>
-                            </label>
-                            <textarea id="purpose" name="purpose" placeholder="Beschreiben Sie den Geschäftszweck Ihrer Reise..." required>Kundentermin und Projektabschluss bei ABC GmbH</textarea>
-                        </div>
+                    <div class="section-title">
+                        <i class="fas fa-plane"></i>
+                        Reisedetails
                     </div>
-                </div>
 
-                <!-- Travel Details -->
-                <div class="form-section">
-                    <h2 class="section-title">
-                        <i class="fas fa-calendar-alt"></i>
-                        Reisedaten
-                    </h2>
                     <div class="form-grid">
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="start-date">
-                                    Startdatum <span class="required">*</span>
-                                </label>
-                                <input type="datetime-local" id="start-date" name="start_at" required>
+                                <label for="trip-purpose">Reisezweck <span class="required">*</span></label>
+                                <select id="trip-purpose" name="trip-purpose" required>
+                                    <option value="">Bitte wählen</option>
+                                    <option value="business">Geschäftlich</option>
+                                    <option value="training">Training</option>
+                                    <option value="conference">Konferenz</option>
+                                    <option value="customer">Kundenbesuch</option>
+                                </select>
                             </div>
+
                             <div class="form-group">
-                                <label for="end-date">
-                                    Enddatum <span class="required">*</span>
-                                </label>
-                                <input type="datetime-local" id="end-date" name="end_at" required>
+                                <label for="trip-destination">Reiseziel <span class="required">*</span></label>
+                                <input type="text" id="trip-destination" name="trip-destination" required>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="destination-city">
-                                    Zielstadt <span class="required">*</span>
-                                </label>
-                                <input type="text" id="destination-city" name="destination_city" value="München" placeholder="z.B. Berlin" required>
+                                <label for="trip-start">Reisebeginn <span class="required">*</span></label>
+                                <input type="date" id="trip-start" name="trip-start" required>
                             </div>
+
                             <div class="form-group">
-                                <label for="destination-country">
-                                    Zielland <span class="required">*</span>
-                                </label>
-                                <select id="destination-country" name="destination_country" required>
-                                    <option value="">Land wählen</option>
-                                    <option value="Germany" selected>Deutschland</option>
-                                    <option value="Austria">Österreich</option>
-                                    <option value="Switzerland">Schweiz</option>
-                                    <option value="France">Frankreich</option>
-                                    <option value="Netherlands">Niederlande</option>
-                                    <option value="Belgium">Belgien</option>
-                                    <option value="United Kingdom">Vereinigtes Königreich</option>
-                                    <option value="United States">USA</option>
-                                    <option value="Other">Sonstiges</option>
+                                <label for="trip-end">Reiseende <span class="required">*</span></label>
+                                <input type="date" id="trip-end" name="trip-end" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="trip-costs">Reisekosten (geschätzt) <span class="required">*</span></label>
+                                <input type="number" id="trip-costs" name="trip-costs" step="0.01" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="trip-currency">Währung <span class="required">*</span></label>
+                                <select id="trip-currency" name="trip-currency" required>
+                                    <option value="">Bitte wählen</option>
+                                    <option value="EUR">Euro (EUR)</option>
+                                    <option value="USD">US-Dollar (USD)</option>
+                                    <option value="GBP">Britisches Pfund (GBP)</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Receipt Upload Section -->
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-receipt"></i>
-                        Belege hochladen (optional)
+                        Belege hochladen
                     </div>
-                    <div class="section-content">
-                        <div class="receipt-upload">
-                            <div class="form-group">
-                                <label for="receipt-upload">
-                                    Belege (Bilder oder PDFs)
-                                </label>
-                                <div class="upload-area" id="receipt-form">
-                                    <input type="file" id="receipt-upload" name="receipts" multiple 
-                                           accept="image/*,application/pdf" style="display: none;">
-                                    <div class="upload-content" onclick="document.getElementById('receipt-upload').click();">
-                                        <i class="fas fa-cloud-upload-alt"></i>
-                                        <p>Klicken Sie hier oder ziehen Sie Dateien hierher</p>
-                                        <small>Unterstützte Formate: JPG, PNG, PDF</small>
-                                    </div>
-                                </div>
+
+                    <div class="receipt-upload">
+                        <button type="button" class="btn scan-receipt-btn" onclick="scanReceipt()">
+                            <i class="fas fa-camera"></i>
+                            Beleg scannen
+                        </button>
+
+                        <div class="upload-area" id="upload-area">
+                            <input type="file" id="receipt-files" name="receipt-files[]" multiple accept="image/*" style="display: none;" onchange="handleFiles(this.files)">
+                            <div class="upload-content">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Oder ziehen Sie Ihre Belege hierher</p>
+                                <small>(Mehrere Dateien können ausgewählt werden)</small>
                             </div>
-                            
-                            <!-- Receipt Display Table -->
-                            <div class="receipts-table" id="receipts">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Datei</th>
-                                            <th>Betrag</th>
-                                            <th>Währung</th>
-                                            <th>Datum</th>
-                                            <th>Händler</th>
-                                            <th>Aktionen</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="receipts-list">
-                                        <!-- Receipt entries will be added here -->
-                                    </tbody>
-                                </table>
-                            </div>
+                        </div>
+
+                        <div class="receipts-table" id="receipts-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Datei</th>
+                                        <th>Größe</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="receipts-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
                 <!-- Travel Preview -->
                 <div class="travel-preview" id="travel-preview">
-                    <div class="preview-title">
-                        <i class="fas fa-eye"></i>
-                        Reiseübersicht
-                    </div>
-                    <div class="preview-grid">
-                        <div class="preview-item">
-                            <div class="preview-label">Mitarbeiter</div>
-                            <div class="preview-value" id="preview-employee">-</div>
-                        </div>
-                        <div class="preview-item">
-                            <div class="preview-label">Reiseziel</div>
-                            <div class="preview-value" id="preview-destination">-</div>
-                        </div>
-                        <div class="preview-item">
-                            <div class="preview-label">Zeitraum</div>
-                            <div class="preview-value" id="preview-dates">-</div>
-                        </div>
-                        <div class="preview-item">
-                            <div class="preview-label">Dauer</div>
-                            <div class="preview-value" id="preview-duration">-</div>
-                        </div>
+                    <h3 class="preview-title">
+                        <i class="fas fa-clipboard-check"></i>
+                        Vorschau der Reisekostenabrechnung
+                    </h3>
+                    <div class="preview-grid" id="preview-grid">
+                        <!-- Populated by JS -->
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <a href="/api/v1/dashboard" class="btn btn-secondary">
-                        <i class="fas fa-times"></i>
-                        Abbrechen
-                    </a>
-                    <button type="button" class="btn btn-secondary" onclick="togglePreview()">
-                        <i class="fas fa-eye"></i>
-                        Vorschau
-                    </button>
-                    <button type="submit" class="btn btn-primary" id="submit-btn">
-                        <i class="fas fa-save"></i>
-                        Reise erstellen
-                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="saveAsDraft()">Als Entwurf speichern</button>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Reise einreichen</button>
                 </div>
             </form>
-
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Reise wird erstellt...</p>
-            </div>
         </div>
     </div>
 
     <script>
-        // Set default datetime values
-        function setDefaultDates() {
-            const now = new Date();
-            const tomorrow = new Date(now);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(8, 0, 0, 0);
-            
-            const dayAfter = new Date(tomorrow);
-            dayAfter.setDate(dayAfter.getDate() + 2);
-            dayAfter.setHours(18, 0, 0, 0);
-            
-            const formatDateTime = (date) => {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                const hours = String(date.getHours()).padStart(2, '0');
-                const minutes = String(date.getMinutes()).padStart(2, '0');
-                return `${year}-${month}-${day}T${hours}:${minutes}`;
-            };
-            
-            document.getElementById('start-date').value = formatDateTime(tomorrow);
-            document.getElementById('end-date').value = formatDateTime(dayAfter);
+        function scanReceipt() {
+            alert('Beleg-Scan-Funktion wird aufgerufen...');
+            // Hier würde die Logik zum Öffnen der Kamera und zum Scannen des Belegs implementiert
         }
 
-        // Quick fill functions
+        // Other form-related JS functions can be added here.
         function fillBusinessTrip() {
-            document.getElementById('purpose').value = 'Geschäftstermin und Projektbesprechung';
-            document.getElementById('destination-city').value = 'Hamburg';
-            document.getElementById('cost-center').value = 'SALES-001';
+            console.log('Filling form for Business Trip');
         }
-
         function fillTraining() {
-            document.getElementById('purpose').value = 'Teilnahme an Schulung und Weiterbildungsmaßnahme';
-            document.getElementById('destination-city').value = 'Frankfurt';
-            document.getElementById('cost-center').value = 'HR-001';
+            console.log('Filling form for Training');
         }
-
         function fillConference() {
-            document.getElementById('purpose').value = 'Besuch der Branchenmesse und Networking';
-            document.getElementById('destination-city').value = 'Köln';
-            document.getElementById('cost-center').value = 'MKT-001';
+            console.log('Filling form for Conference');
         }
-
         function fillCustomer() {
-            document.getElementById('purpose').value = 'Kundentermin und Projektabschluss';
-            document.getElementById('destination-city').value = 'Stuttgart';
-            document.getElementById('cost-center').value = 'SALES-001';
+            console.log('Filling form for Customer visit');
         }
-
         function clearForm() {
             document.getElementById('travel-form').reset();
-            setDefaultDates();
-            updatePreview();
         }
+        async function submitTravel(status) {
+            const form = document.getElementById('travel-form');
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Einreichen...';
 
-        // Preview functionality
-        function togglePreview() {
-            const preview = document.getElementById('travel-preview');
-            if (preview.style.display === 'none' || !preview.style.display) {
-                updatePreview();
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
-            }
-        }
-
-        function updatePreview() {
-            const employee = document.getElementById('employee-name').value || '-';
-            const city = document.getElementById('destination-city').value || '-';
-            const country = document.getElementById('destination-country').value || '-';
-            const startDate = document.getElementById('start-date').value;
-            const endDate = document.getElementById('end-date').value;
-            
-            document.getElementById('preview-employee').textContent = employee;
-            document.getElementById('preview-destination').textContent = city + (country !== '-' ? ', ' + country : '');
-            
-            if (startDate && endDate) {
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-                const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-                
-                document.getElementById('preview-dates').textContent = 
-                    start.toLocaleDateString('de-DE') + ' - ' + end.toLocaleDateString('de-DE');
-                document.getElementById('preview-duration').textContent = duration + ' Tag' + (duration !== 1 ? 'e' : '');
-            } else {
-                document.getElementById('preview-dates').textContent = '-';
-                document.getElementById('preview-duration').textContent = '-';
-            }
-        }
-
-        // Alert system
-        function showAlert(message, type = 'success') {
-            const container = document.getElementById('alert-container');
-            container.innerHTML = `
-                <div class="alert alert-${type}">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
-                    ${message}
-                </div>
-            `;
-            container.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function clearAlerts() {
-            document.getElementById('alert-container').innerHTML = '';
-        }
-
-        // Form submission
-        document.getElementById('travel-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            clearAlerts();
-            
-            const formData = new FormData(e.target);
-            
-            // Convert datetime-local to ISO
-            for (const key of ['start_at', 'end_at']) {
-                const value = formData.get(key);
-                if (value) {
-                    formData.set(key, new Date(value).toISOString());
-                }
-            }
-            
-            // Validate dates
-            const startDate = new Date(formData.get('start_at'));
-            const endDate = new Date(formData.get('end_at'));
-            
-            if (endDate <= startDate) {
-                showAlert('Das Enddatum muss nach dem Startdatum liegen.', 'error');
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user || !user.name) {
+                alert('Fehler: Benutzer nicht angemeldet. Sie werden zur Landingpage weitergeleitet.');
+                window.location.href = '/';
                 return;
             }
-            
-            // Show loading
-            document.getElementById('travel-form').style.display = 'none';
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('submit-btn').disabled = true;
-            
+
+            const destinationInput = document.getElementById('trip-destination').value.split(',');
+            const destinationCity = destinationInput[0]?.trim();
+            const destinationCountry = destinationInput[1]?.trim() || 'Deutschland';
+
+            const travelData = {
+                employee_name: user.name,
+                purpose: document.getElementById('trip-purpose').value,
+                destination_city: destinationCity,
+                destination_country: destinationCountry,
+                start_at: new Date(document.getElementById('trip-start').value).toISOString(),
+                end_at: new Date(document.getElementById('trip-end').value).toISOString(),
+                status: status
+            };
+
             try {
                 const response = await fetch('/api/v1/travels/', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(travelData),
                 });
-                
+
                 if (!response.ok) {
-                    throw new Error('Fehler beim Erstellen der Reise');
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Ein Fehler ist aufgetreten.');
                 }
-                
-                const travel = await response.json();
-                
-                showAlert('Reise erfolgreich erstellt! Weiterleitung...', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = `/api/v1/dashboard`;
-                }, 1500);
-                
+
+                const result = await response.json();
+                alert(`Reise erfolgreich ${status === 'draft' ? 'als Entwurf gespeichert' : 'eingereicht'}! ID: ${result.id}`);
+                window.location.href = '/api/v1/dashboard';
+
             } catch (error) {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('travel-form').style.display = 'block';
-                document.getElementById('submit-btn').disabled = false;
-                
-                showAlert(error.message || 'Fehler beim Erstellen der Reise', 'error');
-            }
-        });
-
-        // Form validation and preview updates
-        document.querySelectorAll('input, select, textarea').forEach(element => {
-            element.addEventListener('input', updatePreview);
-        });
-
-        // Receipt upload functionality
-        let uploadedReceipts = [];
-
-        document.getElementById('receipt-upload').addEventListener('change', function(event) {
-            const files = Array.from(event.target.files);
-            files.forEach(file => {
-                if (file.type.startsWith('image/') || file.type === 'application/pdf') {
-                    uploadedReceipts.push({
-                        file: file,
-                        name: file.name,
-                        amount: '',
-                        currency: 'EUR',
-                        date: '',
-                        merchant: ''
-                    });
-                }
-            });
-            displayReceipts();
-        });
-
-        function displayReceipts() {
-            const tableContainer = document.getElementById('receipts');
-            const tbody = document.getElementById('receipts-list');
-            
-            if (uploadedReceipts.length > 0) {
-                tableContainer.classList.add('has-receipts');
-                tbody.innerHTML = uploadedReceipts.map((receipt, index) => `
-                    <tr>
-                        <td>${receipt.name}</td>
-                        <td><input type="number" step="0.01" placeholder="0.00" value="${receipt.amount}" 
-                                   onchange="updateReceiptField(${index}, 'amount', this.value)"></td>
-                        <td><select onchange="updateReceiptField(${index}, 'currency', this.value)">
-                                <option value="EUR" ${receipt.currency === 'EUR' ? 'selected' : ''}>EUR</option>
-                                <option value="USD" ${receipt.currency === 'USD' ? 'selected' : ''}>USD</option>
-                                <option value="CHF" ${receipt.currency === 'CHF' ? 'selected' : ''}>CHF</option>
-                            </select></td>
-                        <td><input type="date" value="${receipt.date}" 
-                                   onchange="updateReceiptField(${index}, 'date', this.value)"></td>
-                        <td><input type="text" placeholder="Händler" value="${receipt.merchant}" 
-                                   onchange="updateReceiptField(${index}, 'merchant', this.value)"></td>
-                        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeReceipt(${index})">
-                                <i class="fas fa-trash"></i>
-                            </button></td>
-                    </tr>
-                `).join('');
-            } else {
-                tableContainer.classList.remove('has-receipts');
+                console.error('Fehler beim Einreichen der Reise:', error);
+                alert(`Fehler: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Reise einreichen';
             }
         }
 
-        function updateReceiptField(index, field, value) {
-            if (uploadedReceipts[index]) {
-                uploadedReceipts[index][field] = value;
-            }
-        }
-
-        function removeReceipt(index) {
-            uploadedReceipts.splice(index, 1);
-            displayReceipts();
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            setDefaultDates();
-            updatePreview();
-            
-            // Check if user is logged in
-            if (!localStorage.getItem('user')) {
-                window.location.href = '/';
-            }
+        document.getElementById('travel-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitTravel('submitted');
         });
+
+        // Handle back button click
+        document.querySelector('.back-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/api/v1/dashboard';
+        });
+
+        function saveAsDraft() {
+            submitTravel('draft');
+        }
+
+        function handleFiles(files) {
+            console.log(files);
+        }
     </script>
 </body>
 </html>

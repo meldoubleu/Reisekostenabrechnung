@@ -1,12 +1,12 @@
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
-from . import travels
+from . import endpoints as travels_endpoints
 from importlib.resources import files
 from pathlib import Path
 
 router = APIRouter()
-router.include_router(travels.router, prefix="/travels", tags=["travels"])
+router.include_router(travels_endpoints.router, prefix="/travels", tags=["travels"])
 
 # Get the frontend directory path - go up to project root then into frontend
 project_root = Path(__file__).parent.parent.parent.parent.parent
@@ -54,3 +54,11 @@ async def ui():
     # Fallback to embedded HTML file
     html_path = files(__package__).joinpath("travel_form.html")
     return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+
+@router.get("/debug", response_class=HTMLResponse)
+async def debug_page():
+    """Serve debug page for troubleshooting localStorage and role detection."""
+    debug_path = frontend_dir / "debug.html"
+    if debug_path.exists():
+        return HTMLResponse(content=debug_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Debug page not found</h1>")

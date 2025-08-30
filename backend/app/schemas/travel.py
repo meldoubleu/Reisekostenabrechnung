@@ -57,6 +57,14 @@ class TravelCreate(TravelBase):
     pass
 
 
+class TravelUpdate(TravelBase):
+    pass
+
+
+class TravelStatusUpdate(BaseModel):
+    status: TravelStatus
+
+
 class Travel(TravelBase):
     id: int
     receipts: List[Receipt] = Field(default_factory=list)

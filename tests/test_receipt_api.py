@@ -16,10 +16,11 @@ class TestReceiptAPI:
         # Create a travel first
         create_response = await client.post(
             "/api/v1/travels/",
-            data=sample_travel_data
+            json=sample_travel_data
         )
+        assert create_response.status_code == 200
         travel_id = create_response.json()["id"]
-        
+
         # Create a simple test image
         img = Image.new('RGB', (100, 100), color='white')
         img_buffer = io.BytesIO()
@@ -64,21 +65,22 @@ class TestReceiptAPI:
         # Create a travel
         create_response = await client.post(
             "/api/v1/travels/",
-            data=sample_travel_data
+            json=sample_travel_data
         )
+        assert create_response.status_code == 200
         travel_id = create_response.json()["id"]
-        
+
         # Upload a receipt
+        receipt_path = temp_upload_dir / "receipt.jpg"
         img = Image.new('RGB', (100, 100), color='white')
-        img_buffer = io.BytesIO()
-        img.save(img_buffer, format='PNG')
-        img_buffer.seek(0)
+        img.save(receipt_path, format='JPEG')
         
-        files = {"file": ("test_receipt.png", img_buffer, "image/png")}
-        await client.post(
-            f"/api/v1/travels/{travel_id}/receipts",
-            files=files
-        )
+        with open(receipt_path, "rb") as img_file:
+            files = {"file": ("receipt.jpg", img_file, "image/jpeg")}
+            await client.post(
+                f"/api/v1/travels/{travel_id}/receipts",
+                files=files
+            )
         
         # List travels and check receipts are included
         response = await client.get("/api/v1/travels/")
@@ -87,4 +89,4 @@ class TestReceiptAPI:
         data = response.json()
         assert len(data) == 1
         assert len(data[0]["receipts"]) == 1
-        assert "test_receipt.png" in data[0]["receipts"][0]["file_path"]
+        assert "receipt.jpg" in data[0]["receipts"][0]["file_path"]
