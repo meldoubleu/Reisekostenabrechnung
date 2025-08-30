@@ -4,10 +4,12 @@ from fastapi.staticfiles import StaticFiles
 from . import endpoints as travels_endpoints
 from . import users
 from . import admin
+from . import auth
 from importlib.resources import files
 from pathlib import Path
 
 router = APIRouter()
+router.include_router(auth.router, prefix="/auth", tags=["auth"])
 router.include_router(travels_endpoints.router, prefix="/travels", tags=["travels"])
 router.include_router(users.router, prefix="/users", tags=["users"])
 router.include_router(admin.router, prefix="/admin", tags=["admin"])
@@ -34,7 +36,7 @@ async def landingpage():
 
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard():
-    """Serve the dashboard page."""
+    """Serve the dashboard page for controllers and employees only."""
     dashboard_path = frontend_dir / "dashboard.html"
     if dashboard_path.exists():
         return HTMLResponse(content=dashboard_path.read_text(encoding="utf-8"))

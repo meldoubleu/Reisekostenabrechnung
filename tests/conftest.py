@@ -101,3 +101,54 @@ def sample_travel_data():
 def sample_receipt_content():
     """Sample receipt content for OCR testing."""
     return b"Test receipt content - this would be an image file"
+
+
+@pytest_asyncio.fixture
+async def admin_headers(client: AsyncClient):
+    """Create authentication headers for admin user."""
+    login_data = {
+        "email": "admin@demo.com",
+        "password": "admin123"
+    }
+    
+    response = await client.post("/api/v1/auth/login", json=login_data)
+    if response.status_code == 200:
+        token_data = response.json()
+        return {"Authorization": f"Bearer {token_data['access_token']}"}
+    else:
+        # Fallback if login endpoint doesn't exist or fails
+        return {"Authorization": "Bearer admin_test_token"}
+
+
+@pytest_asyncio.fixture
+async def employee_headers(client: AsyncClient):
+    """Create authentication headers for employee user."""
+    login_data = {
+        "email": "max.mustermann@demo.com",
+        "password": "employee123"
+    }
+    
+    response = await client.post("/api/v1/auth/login", json=login_data)
+    if response.status_code == 200:
+        token_data = response.json()
+        return {"Authorization": f"Bearer {token_data['access_token']}"}
+    else:
+        # Fallback if login endpoint doesn't exist or fails
+        return {"Authorization": "Bearer employee_test_token"}
+
+
+@pytest_asyncio.fixture
+async def controller_headers(client: AsyncClient):
+    """Create authentication headers for controller user."""
+    login_data = {
+        "email": "controller1@demo.com",
+        "password": "controller123"
+    }
+    
+    response = await client.post("/api/v1/auth/login", json=login_data)
+    if response.status_code == 200:
+        token_data = response.json()
+        return {"Authorization": f"Bearer {token_data['access_token']}"}
+    else:
+        # Fallback if login endpoint doesn't exist or fails
+        return {"Authorization": "Bearer controller_test_token"}

@@ -3,16 +3,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from typing import List, Dict, Any
 
-from ...crud import crud_user
+from ...crud import crud_user, crud_travel
 from ...schemas.user import User, UserCreate, UserUpdate, UserWithRelations
-from ...models.user import UserRole
-from ..deps import get_db
+from ...schemas.travel import Travel
+from ...models.user import UserRole, User as UserModel
+from ..deps import get_db, get_current_admin_user
 
 router = APIRouter()
 
 
 @router.get("/dashboard", response_model=Dict[str, Any])
-async def get_admin_dashboard(db: AsyncSession = Depends(get_db)):
+async def get_admin_dashboard(
+    db: AsyncSession = Depends(get_db),
+    current_user: UserModel = Depends(get_current_admin_user)
+):
     """Get admin dashboard data with controllers and their assigned employees."""
     
     # Get all controllers with their employees
@@ -82,11 +86,12 @@ async def get_admin_dashboard(db: AsyncSession = Depends(get_db)):
     }
 
 
-@router.post("/controllers", response_model=User)
+@router.post("/controllers", response_model=User, status_code=201)
 async def create_controller(
     *,
     db: AsyncSession = Depends(get_db),
-    controller_data: UserCreate
+    controller_data: UserCreate,
+    current_user: UserModel = Depends(get_current_admin_user)
 ):
     """Create a new controller (admin only)."""
     if controller_data.role != UserRole.controller:
@@ -100,11 +105,12 @@ async def create_controller(
     return await crud_user.create(db=db, obj_in=controller_data)
 
 
-@router.post("/employees", response_model=User)
+@router.post("/employees", response_model=User, status_code=201)
 async def create_employee(
     *,
     db: AsyncSession = Depends(get_db),
-    employee_data: UserCreate
+    employee_data: UserCreate,
+    current_user: UserModel = Depends(get_current_admin_user)
 ):
     """Create a new employee (admin only)."""
     if employee_data.role != UserRole.employee:
@@ -123,7 +129,8 @@ async def assign_employee_to_controller(
     *,
     db: AsyncSession = Depends(get_db),
     employee_id: int,
-    controller_id: int
+    controller_id: int,
+    current_user: UserModel = Depends(get_current_admin_user)
 ):
     """Assign an employee to a controller (admin only)."""
     
@@ -149,7 +156,8 @@ async def assign_employee_to_controller(
 async def unassign_employee(
     *,
     db: AsyncSession = Depends(get_db),
-    employee_id: int
+    employee_id: int,
+    current_user: UserModel = Depends(get_current_admin_user)
 ):
     """Remove an employee from their controller (admin only)."""
     
@@ -170,7 +178,8 @@ async def unassign_employee(
 async def delete_user(
     *,
     db: AsyncSession = Depends(get_db),
-    user_id: int
+    user_id: int,
+    current_user: UserModel = Depends(get_current_admin_user)
 ):
     """Delete a user (admin only). Reassigns employees if deleting a controller."""
     
@@ -192,7 +201,10 @@ async def delete_user(
 
 
 @router.get("/controller-assignments")
-async def get_controller_assignments(db: AsyncSession = Depends(get_db)):
+async def get_controller_assignments(
+    db: AsyncSession = Depends(get_db),
+    current_user: UserModel = Depends(get_current_admin_user)
+):
     """Get detailed controller-employee assignments for admin overview."""
     
     result = await db.execute(
@@ -238,3 +250,12 @@ async def get_controller_assignments(db: AsyncSession = Depends(get_db)):
             })
     
     return list(assignments.values())
+
+
+@router.get("/travels", response_model=List[Travel])
+async def get_all_travels(
+    db: AsyncSession = Depends(get_db),
+    current_user: UserModel = Depends(get_current_admin_user)
+):
+    """Get all travels (admin only)."""
+    return await crud_travel.get_multi(db)

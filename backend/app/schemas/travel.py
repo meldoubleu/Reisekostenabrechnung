@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from datetime import datetime
 from typing import Optional, List
 import enum
@@ -56,6 +56,13 @@ class TravelBase(BaseModel):
 class TravelCreate(TravelBase):
     # Optional employee_id for new relationship-based travel creation
     employee_id: Optional[int] = None
+    
+    @model_validator(mode='after')
+    def validate_date_range(self):
+        """Validate that end_at is after start_at."""
+        if self.start_at and self.end_at and self.end_at <= self.start_at:
+            raise ValueError("End date must be after start date")
+        return self
 
 
 class TravelUpdate(TravelBase):

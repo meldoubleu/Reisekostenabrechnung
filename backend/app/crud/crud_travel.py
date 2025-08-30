@@ -48,7 +48,7 @@ async def get_multi_by_employee_id(
     """Get travels by employee ID (new method for proper relationship)."""
     result = await db.execute(
         select(Travel)
-        .options(selectinload(Travel.receipts), selectinload(Travel.employee))
+        .options(selectinload(Travel.receipts))
         .filter(Travel.employee_id == employee_id)
         .order_by(Travel.id.desc())
         .offset(skip)

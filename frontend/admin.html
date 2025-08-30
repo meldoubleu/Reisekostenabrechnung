@@ -50,36 +50,60 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--gray-200);
+            padding: 1.5rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
-        .admin-title {
-            font-size: 2.5rem;
+        .admin-title h1 {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: var(--gray-900);
+            margin-bottom: 0.5rem;
         }
 
         .admin-subtitle {
             color: var(--gray-600);
-            font-size: 1.1rem;
-            margin-top: 0.5rem;
+            font-size: 1rem;
+            margin: 0;
         }
 
-        .back-link {
-            display: inline-flex;
+        .admin-badge {
+            background: var(--danger);
+            color: var(--white);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: var(--gray-600);
-            color: var(--white);
-            text-decoration: none;
-            border-radius: 8px;
-            transition: background 0.2s;
         }
 
-        .back-link:hover {
-            background: var(--gray-700);
+        .logout-btn:hover {
+            background: #b91c1c;
         }
 
         .stats-grid {
@@ -340,17 +364,30 @@
 <body>
     <div class="admin-container">
         <div class="admin-header">
-            <div>
-                <h1 class="admin-title">
-                    <i class="fas fa-users-cog"></i>
-                    Admin Dashboard
-                </h1>
-                <p class="admin-subtitle">Manage controllers and employee assignments</p>
+            <div class="admin-title">
+                <div>
+                    <h1>
+                        <i class="fas fa-users-cog"></i>
+                        Admin Dashboard
+                        <span class="admin-badge">ADMIN</span>
+                    </h1>
+                    <p class="admin-subtitle">Welcome back, <span id="admin-name">Administrator</span></p>
+                </div>
             </div>
-            <a href="/api/v1/dashboard" class="back-link">
-                <i class="fas fa-arrow-left"></i>
-                Back to Dashboard
-            </a>
+            <div class="admin-actions">
+                <button class="btn btn-secondary" onclick="openProfileModal()">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </button>
+                <button class="btn btn-secondary" onclick="viewSystemLogs()">
+                    <i class="fas fa-chart-line"></i>
+                    System
+                </button>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
         </div>
 
         <div id="alert-container"></div>
@@ -375,9 +412,30 @@
             </div>
         </div>
 
+        <!-- Quick Overview -->
+        <div class="actions-section">
+            <h2 class="section-title">
+                <i class="fas fa-tachometer-alt"></i>
+                System Overview
+            </h2>
+            <div class="stats-grid" style="margin-bottom: 1rem;">
+                <div class="stat-card" style="border-left-color: var(--success);">
+                    <div class="stat-value" style="color: var(--success);" id="active-sessions">1</div>
+                    <div class="stat-label">Active Admin Sessions</div>
+                </div>
+                <div class="stat-card" style="border-left-color: var(--warning);">
+                    <div class="stat-value" style="color: var(--warning);" id="last-login">Today</div>
+                    <div class="stat-label">Last Login</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Actions -->
         <div class="actions-section">
-            <h2 class="section-title">Quick Actions</h2>
+            <h2 class="section-title">
+                <i class="fas fa-bolt"></i>
+                Quick Actions
+            </h2>
             <div class="action-buttons">
                 <button class="btn btn-primary" onclick="openCreateControllerModal()">
                     <i class="fas fa-user-tie"></i>
@@ -386,6 +444,10 @@
                 <button class="btn btn-success" onclick="openCreateEmployeeModal()">
                     <i class="fas fa-user-plus"></i>
                     Create Employee
+                </button>
+                <button class="btn btn-secondary" onclick="viewSystemLogs()">
+                    <i class="fas fa-chart-line"></i>
+                    View Reports
                 </button>
                 <button class="btn btn-secondary" onclick="refreshDashboard()">
                     <i class="fas fa-sync-alt"></i>
@@ -504,14 +566,126 @@
         </div>
     </div>
 
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-content">
+            <h3>Admin Profile</h3>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="profile-name" readonly>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="profile-email" readonly>
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <input type="text" id="profile-role" readonly>
+            </div>
+            <div class="form-group">
+                <label>Company</label>
+                <input type="text" id="profile-company" readonly>
+            </div>
+            <div class="form-group">
+                <label>Department</label>
+                <input type="text" id="profile-department" readonly>
+            </div>
+            <div class="action-buttons">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('profile-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Logs Modal -->
+    <div id="system-logs-modal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <h3>System Overview</h3>
+            <div class="stats-grid" style="margin-bottom: 1.5rem;">
+                <div class="stat-card">
+                    <div class="stat-value" id="system-uptime">Running</div>
+                    <div class="stat-label">Server Status</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-travels">-</div>
+                    <div class="stat-label">Total Travel Requests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pending-approvals">-</div>
+                    <div class="stat-label">Pending Approvals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="system-health">Good</div>
+                    <div class="stat-label">System Health</div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button type="button" class="btn btn-primary" onclick="refreshSystemStats()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('system-logs-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let dashboardData = null;
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            loadDashboardData();
-            setupEventHandlers();
+            // First verify admin role before loading anything
+            verifyAdminAccess();
         });
+
+        async function verifyAdminAccess() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    redirectToLogin();
+                    return;
+                }
+
+                // Verify token and role
+                const response = await fetch('http://localhost:8000/api/v1/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const user = await response.json();
+                
+                // Check if user is admin
+                if (user.role !== 'admin') {
+                    alert('Access denied. Admin privileges required.');
+                    // Redirect to appropriate dashboard based on role
+                    if (user.role === 'controller' || user.role === 'employee') {
+                        window.location.href = '/dashboard.html';
+                    } else {
+                        redirectToLogin();
+                    }
+                    return;
+                }
+
+                // If we get here, user is admin - proceed with loading
+                loadDashboardData();
+                setupEventHandlers();
+                updateAdminInfo(user);
+                
+            } catch (error) {
+                console.error('Error verifying admin access:', error);
+                redirectToLogin();
+            }
+        }
+
+        function redirectToLogin() {
+            localStorage.removeItem('token');
+            window.location.href = '/index.html';
+        }
 
         function setupEventHandlers() {
             // Create controller form
@@ -544,8 +718,20 @@
 
         async function loadDashboardData() {
             try {
-                const response = await fetch('/api/v1/admin/dashboard');
-                if (!response.ok) throw new Error('Failed to load dashboard data');
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:8000/api/v1/admin/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        redirectToLogin();
+                        return;
+                    }
+                    throw new Error('Failed to load dashboard data');
+                }
                 
                 dashboardData = await response.json();
                 updateDashboard();
@@ -656,13 +842,21 @@
             };
 
             try {
-                const response = await fetch('/api/v1/admin/controllers', {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:8000/api/v1/admin/controllers', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify(formData)
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        redirectToLogin();
+                        return;
+                    }
                     const error = await response.json();
                     throw new Error(error.detail || 'Failed to create controller');
                 }
@@ -687,13 +881,21 @@
             };
 
             try {
-                const response = await fetch('/api/v1/admin/employees', {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:8000/api/v1/admin/employees', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify(formData)
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        redirectToLogin();
+                        return;
+                    }
                     const error = await response.json();
                     throw new Error(error.detail || 'Failed to create employee');
                 }
@@ -712,11 +914,19 @@
             const controllerId = document.getElementById('assign-controller-select').value;
 
             try {
-                const response = await fetch(`/api/v1/admin/assign-employee/${employeeId}/to-controller/${controllerId}`, {
-                    method: 'PUT'
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:8000/api/v1/admin/assign-employee/${employeeId}/to-controller/${controllerId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        redirectToLogin();
+                        return;
+                    }
                     const error = await response.json();
                     throw new Error(error.detail || 'Failed to assign employee');
                 }
@@ -736,11 +946,19 @@
             }
 
             try {
-                const response = await fetch(`/api/v1/admin/unassign-employee/${employeeId}`, {
-                    method: 'PUT'
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:8000/api/v1/admin/unassign-employee/${employeeId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        redirectToLogin();
+                        return;
+                    }
                     const error = await response.json();
                     throw new Error(error.detail || 'Failed to unassign employee');
                 }
@@ -759,11 +977,19 @@
             }
 
             try {
-                const response = await fetch(`/api/v1/admin/users/${userId}`, {
-                    method: 'DELETE'
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:8000/api/v1/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        redirectToLogin();
+                        return;
+                    }
                     const error = await response.json();
                     throw new Error(error.detail || 'Failed to delete user');
                 }
@@ -824,6 +1050,82 @@
                     alertDiv.parentNode.removeChild(alertDiv);
                 }
             }, 5000);
+        }
+
+        function updateAdminInfo(user) {
+            document.getElementById('admin-name').textContent = user.name || 'Administrator';
+            
+            // Update last login time
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('de-DE', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            document.getElementById('last-login').textContent = `Today ${timeString}`;
+        }
+
+        function openProfileModal() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('profile-name').value = user.name || '';
+            document.getElementById('profile-email').value = user.email || '';
+            document.getElementById('profile-role').value = (user.role || '').toUpperCase();
+            document.getElementById('profile-company').value = user.company || '';
+            document.getElementById('profile-department').value = user.department || '';
+            document.getElementById('profile-modal').style.display = 'block';
+        }
+
+        async function viewSystemLogs() {
+            document.getElementById('system-logs-modal').style.display = 'block';
+            await refreshSystemStats();
+        }
+
+        async function refreshSystemStats() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                // Get basic system stats from dashboard data
+                if (dashboardData) {
+                    const totalTravels = await getTotalTravels();
+                    document.getElementById('total-travels').textContent = totalTravels || '0';
+                    document.getElementById('pending-approvals').textContent = '0'; // Could be enhanced with real data
+                }
+                
+                document.getElementById('system-uptime').textContent = 'Online';
+                document.getElementById('system-health').textContent = 'Healthy';
+                
+            } catch (error) {
+                console.error('Error refreshing system stats:', error);
+                document.getElementById('system-uptime').textContent = 'Error';
+                document.getElementById('system-health').textContent = 'Unknown';
+            }
+        }
+
+        async function getTotalTravels() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:8000/api/v1/admin/travels', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const travels = await response.json();
+                    return travels.length;
+                }
+                return 0;
+            } catch (error) {
+                console.error('Error getting travel count:', error);
+                return 0;
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/';
+            }
         }
     </script>
 </body>

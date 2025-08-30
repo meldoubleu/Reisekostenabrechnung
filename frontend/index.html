@@ -505,53 +505,39 @@
             const password = document.getElementById('login-password').value;
 
             try {
-                // Check against our demo users
-                let user = null;
-                
-                if (email === 'admin@demo.com' && password) {
-                    user = {
-                        id: 7,
-                        email: 'admin@demo.com',
-                        name: 'System Administrator',
-                        role: 'admin',
-                        company: 'Demo GmbH'
-                    };
-                } else if (email === 'controller@demo.com' && password) {
-                    user = {
-                        id: 5,
-                        email: 'controller@demo.com',
-                        name: 'Controller User',
-                        role: 'controller',
-                        company: 'Demo GmbH'
-                    };
-                } else if (email === 'employee@demo.com' && password) {
-                    user = {
-                        id: 6,
-                        email: 'employee@demo.com',
-                        name: 'Employee User',
-                        role: 'employee',
-                        company: 'Demo GmbH'
-                    };
-                } else if (email && password) {
-                    // Default demo login - determine role from email
-                    user = {
+                // Call the actual authentication API
+                const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
                         email: email,
-                        name: email.split('@')[0],
-                        role: email.includes('controller') ? 'controller' : 
-                              email.includes('admin') ? 'admin' : 'employee',
-                        company: 'Demo GmbH'
-                    };
+                        password: password
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Anmeldung fehlgeschlagen');
                 }
+
+                const data = await response.json();
                 
-                if (user) {
-                    localStorage.setItem('user', JSON.stringify(user));
-                    showAlert('Erfolgreich angemeldet! Weiterleitung...', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/api/v1/dashboard';
-                    }, 1000);
-                } else {
-                    throw new Error('Ungültige Anmeldedaten');
-                }
+                // Store the token and user data
+                localStorage.setItem('token', data.access_token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                showAlert('Erfolgreich angemeldet! Weiterleitung...', 'success');
+                setTimeout(() => {
+                    // Role-based redirection
+                    if (data.user.role === 'admin') {
+                        window.location.href = '/admin.html';
+                    } else {
+                        window.location.href = '/dashboard.html';
+                    }
+                }, 1000);
+                
             } catch (error) {
                 hideLoading();
                 showAlert(error.message || 'Fehler bei der Anmeldung');
@@ -593,7 +579,13 @@
 
                 showAlert('Account erfolgreich erstellt! Weiterleitung...', 'success');
                 setTimeout(() => {
-                    window.location.href = '/api/v1/dashboard';
+                    // Role-based redirection for registration
+                    const userRole = role;
+                    if (userRole === 'admin') {
+                        window.location.href = '/api/v1/admin';
+                    } else {
+                        window.location.href = '/api/v1/dashboard';
+                    }
                 }, 1000);
             } catch (error) {
                 hideLoading();
@@ -607,7 +599,12 @@
 
         // Check if user is already logged in
         if (localStorage.getItem('user')) {
-            window.location.href = '/api/v1/dashboard';
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user.role === 'admin') {
+                window.location.href = '/api/v1/admin';
+            } else {
+                window.location.href = '/api/v1/dashboard';
+            }
         }
     </script>
 </body>

@@ -923,39 +923,23 @@
             console.log('Parsed currentUser object:', currentUser); // Enhanced debug
             console.log('Role type:', typeof currentUser.role, 'Role value:', currentUser.role); // Enhanced debug
             
+            // Redirect admins to admin dashboard
+            if (currentUser.role === 'admin') {
+                console.log('Admin user detected, redirecting to admin dashboard');
+                window.location.href = '/api/v1/admin';
+                return;
+            }
+            
             document.getElementById('user-name').textContent = currentUser.name;
             document.getElementById('user-company').textContent = currentUser.company;
             
-            const roleText = currentUser.role === 'controller' ? 'Controlling' : 
-                           currentUser.role === 'admin' ? 'Administrator' : 'Mitarbeiter';
+            const roleText = currentUser.role === 'controller' ? 'Controlling' : 'Mitarbeiter';
             document.getElementById('user-role').textContent = roleText;
 
             // Show role-specific UI elements
             console.log('User role:', currentUser.role); // Debug line
             console.log('Role comparison result:', currentUser.role === 'controller'); // Enhanced debug
-            if (currentUser.role === 'admin') {
-                console.log('Setting up admin UI'); // Debug line
-                // Show admin sections
-                document.getElementById('admin-section').style.display = 'block';
-                document.getElementById('controller-section').style.display = 'block';
-                document.getElementById('controller-actions').style.display = 'grid';
-                document.getElementById('controller-overview').style.display = 'block';
-                
-                // Show employee sections for admin overview
-                document.getElementById('employee-actions').style.display = 'grid';
-                document.getElementById('employee-travels').style.display = 'none'; // Hide old list
-                document.getElementById('employee-travel-table').style.display = 'block'; // Show new table
-                document.getElementById('personal-stats').style.display = 'grid';
-                
-                // Show all navigation
-                document.getElementById('neue-reise-button').style.display = 'block';
-                document.getElementById('meine-reisen-nav').style.display = 'block';
-                document.getElementById('belege-nav').style.display = 'block';
-                
-                // Load all data for admin
-                loadTravels();
-                loadTeamOverview();
-            } else if (currentUser.role === 'controller') {
+            if (currentUser.role === 'controller') {
                 console.log('Setting up controller UI'); // Debug line
                 // Show controller sections
                 document.getElementById('controller-section').style.display = 'block';
@@ -1051,7 +1035,7 @@
         // Load travel data
         async function loadTravels() {
             try {
-                const response = await fetch('/api/v1/travels/');
+                const response = await fetch('http://localhost:8000/api/v1/travels/');
                 const travels = await response.json();
                 displayTravelTable(travels); 
                 updateEmployeeStats(travels);

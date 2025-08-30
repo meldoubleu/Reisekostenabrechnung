@@ -25,6 +25,7 @@ class User(Base):
     department: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     cost_center: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    password_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     
     # For employees: who is their controller
     controller_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True)

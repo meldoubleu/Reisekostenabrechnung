@@ -20,7 +20,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    pass
+    controller_id: Optional[int] = None
 
 
 class UserUpdate(BaseModel):

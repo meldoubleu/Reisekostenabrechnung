@@ -120,14 +120,15 @@ class TestRoleBasedBusinessRules:
         response = await client.get("/")
         html_content = response.text
         
-        # Login role determination should be based on email
-        assert "email.includes('controller')" in html_content
-        assert "'controller' :" in html_content
-        assert "'employee'" in html_content
+        # Authentication should use API login endpoint
+        assert "/api/v1/auth/login" in html_content
+        assert "fetch(" in html_content
         
-        # Registration role should be explicit selection
-        assert 'data-role="controller"' in html_content
-        assert 'data-role="employee"' in html_content
+        # Role determination should be server-side via API
+        assert "user.role" in html_content
+        assert "'controller'" in html_content
+        assert "'employee'" in html_content
+        assert "'admin'" in html_content
 
 
 class TestDataIntegrity:

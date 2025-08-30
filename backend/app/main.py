@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from backend.app.api.v1.routers import router as api_router
-from backend.app.db.session import init_db
+from .api.v1.routers import router as api_router
+from .db.session import init_db
 from pathlib import Path
 
 app = FastAPI(title="TravelExpense - Reisekostenabrechnung", version="0.1.0")

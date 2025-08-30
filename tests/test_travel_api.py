@@ -4,6 +4,7 @@ Test API endpoints for travel management.
 import pytest
 from httpx import AsyncClient
 from backend.app.models.travel import Travel, TravelStatus
+from .test_auth_utils import TestAuthHelper
 
 
 class TestTravelAPI:
@@ -12,9 +13,13 @@ class TestTravelAPI:
     @pytest.mark.asyncio
     async def test_create_travel(self, client: AsyncClient, sample_travel_data):
         """Test creating a new travel."""
+        # Get employee authentication headers
+        headers = await TestAuthHelper.get_employee_headers(client)
+        
         response = await client.post(
             "/api/v1/travels/",
-            json=sample_travel_data
+            json=sample_travel_data,
+            headers=headers
         )
     
         assert response.status_code == 200
@@ -32,8 +37,11 @@ class TestTravelAPI:
     @pytest.mark.asyncio
     async def test_list_travels_empty(self, client: AsyncClient):
         """Test listing travels when database is empty."""
+        # Get employee authentication headers
+        headers = await TestAuthHelper.get_employee_headers(client)
+        
         # This test is tricky without DB cleaning. We'll just check for a list response.
-        response = await client.get("/api/v1/travels/")
+        response = await client.get("/api/v1/travels/", headers=headers)
         
         assert response.status_code == 200
         data = response.json()
@@ -42,20 +50,24 @@ class TestTravelAPI:
     @pytest.mark.asyncio
     async def test_list_travels_with_data(self, client: AsyncClient, sample_travel_data):
         """Test listing travels after creating some."""
+        # Get employee authentication headers
+        headers = await TestAuthHelper.get_employee_headers(client)
+        
         # Get initial count
-        initial_response = await client.get("/api/v1/travels/")
+        initial_response = await client.get("/api/v1/travels/", headers=headers)
         initial_count = len(initial_response.json())
         
         # Create a travel first
         create_response = await client.post(
             "/api/v1/travels/",
-            json=sample_travel_data
+            json=sample_travel_data,
+            headers=headers
         )
         assert create_response.status_code == 200
         created_travel = create_response.json()
     
         # List travels
-        response = await client.get("/api/v1/travels/")
+        response = await client.get("/api/v1/travels/", headers=headers)
         
         assert response.status_code == 200
         data = response.json()
@@ -72,6 +84,9 @@ class TestTravelAPI:
     @pytest.mark.asyncio
     async def test_create_travel_missing_fields(self, client: AsyncClient):
         """Test creating travel with missing required fields."""
+        # Get employee authentication headers
+        headers = await TestAuthHelper.get_employee_headers(client)
+        
         incomplete_data = {
             "employee_name": "John Doe",
             # Missing other required fields
@@ -79,7 +94,8 @@ class TestTravelAPI:
         
         response = await client.post(
             "/api/v1/travels/",
-            json=incomplete_data
+            json=incomplete_data,
+            headers=headers
         )
         
         assert response.status_code == 422  # Validation error
@@ -87,16 +103,20 @@ class TestTravelAPI:
     @pytest.mark.asyncio
     async def test_submit_travel(self, client: AsyncClient, sample_travel_data):
         """Test submitting a travel for approval."""
+        # Get employee authentication headers
+        headers = await TestAuthHelper.get_employee_headers(client)
+        
         # Create a travel first
         create_response = await client.post(
             "/api/v1/travels/",
-            json=sample_travel_data
+            json=sample_travel_data,
+            headers=headers
         )
         assert create_response.status_code == 200
         travel_id = create_response.json()["id"]
     
         # Submit the travel
-        response = await client.put(f"/api/v1/travels/{travel_id}", json={"status": "submitted"})
+        response = await client.put(f"/api/v1/travels/{travel_id}", json={"status": "submitted"}, headers=headers)
         
         assert response.status_code == 200
         data = response.json()
@@ -105,17 +125,24 @@ class TestTravelAPI:
     @pytest.mark.asyncio
     async def test_submit_nonexistent_travel(self, client: AsyncClient):
         """Test submitting a travel that doesn't exist."""
-        response = await client.put("/api/v1/travels/999", json={"status": "submitted"})
+        # Get employee authentication headers
+        headers = await TestAuthHelper.get_employee_headers(client)
+        
+        response = await client.put("/api/v1/travels/999", json={"status": "submitted"}, headers=headers)
         
         assert response.status_code == 404
     
     @pytest.mark.asyncio
     async def test_export_travel_pdf(self, client: AsyncClient, sample_travel_data):
         """Test exporting travel as PDF."""
+        # Get employee authentication headers
+        headers = await TestAuthHelper.get_employee_headers(client)
+        
         # Create a travel first
         create_response = await client.post(
             "/api/v1/travels/",
-            json=sample_travel_data
+            json=sample_travel_data,
+            headers=headers
         )
         assert create_response.status_code == 200
         travel_id = create_response.json()["id"]

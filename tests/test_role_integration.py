@@ -19,8 +19,9 @@ class TestRoleBasedIntegration:
         assert response.status_code == 200
         html_content = response.text
         
-        # Login form should contain role detection logic
-        assert "email.includes('controller')" in html_content
+        # Login form should use authentication API
+        assert "/api/v1/auth/login" in html_content
+        assert "fetch(" in html_content
         assert "'employee'" in html_content
         
         # Test dashboard
@@ -41,8 +42,9 @@ class TestRoleBasedIntegration:
         assert response.status_code == 200
         html_content = response.text
         
-        # Login form should contain role detection logic
-        assert "email.includes('controller')" in html_content
+        # Login form should use authentication API
+        assert "/api/v1/auth/login" in html_content
+        assert "fetch(" in html_content
         assert "'controller'" in html_content
         
         # Test dashboard

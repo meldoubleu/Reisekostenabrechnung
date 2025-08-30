@@ -54,21 +54,26 @@ class TestLoginRoleDetection:
     """Test role detection logic in the login system."""
     
     @pytest.mark.asyncio
-    async def test_landing_page_has_role_detection_logic(self, client: AsyncClient):
-        """Test that the landing page contains the role detection JavaScript."""
+    async def test_landing_page_has_authentication_api(self, client: AsyncClient):
+        """Test that the landing page uses the authentication API."""
         response = await client.get("/")
         html_content = response.text
         
-        # Check for role detection in login form
-        assert "email.includes('controller')" in html_content
-        assert "'controller' :" in html_content
-        assert "'employee'" in html_content
+        # Check for authentication API usage
+        assert "/api/v1/auth/login" in html_content
+        assert "fetch(" in html_content
+        assert "localStorage.setItem('token'" in html_content
         
-        # Check for role selection in registration
-        assert 'data-role="employee"' in html_content
-        assert 'data-role="controller"' in html_content
-        assert "selectRole('employee')" in html_content
-        assert "selectRole('controller')" in html_content
+        # Check for role-based redirection logic
+        assert "user.role" in html_content
+        assert "admin" in html_content
+        assert "controller" in html_content
+        assert "employee" in html_content
+        
+        # Check for login form elements
+        assert 'id="login-form"' in html_content
+        assert 'type="email"' in html_content
+        assert 'type="password"' in html_content
 
 class TestDashboardElements:
     """Test that dashboard contains all necessary elements for role-based functionality."""
