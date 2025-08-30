@@ -17,6 +17,7 @@ class Base(DeclarativeBase):
 async def init_db():
     # Import models so they are registered with Base
     from ..models import travel  # noqa: F401
+    from ..models import user    # noqa: F401
 
     async with engine.begin() as conn:
         # ensure db is reachable

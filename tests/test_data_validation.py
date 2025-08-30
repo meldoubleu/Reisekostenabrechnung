@@ -117,11 +117,13 @@ class TestRoleBasedBusinessRules:
     @pytest.mark.asyncio
     async def test_role_determination_logic(self, client: AsyncClient):
         """Test that role determination logic is robust."""
-        response = await client.get("/api/v1/")
+        response = await client.get("/")
         html_content = response.text
         
         # Login role determination should be based on email
-        assert "email.includes('controller') ? 'controller' : 'employee'" in html_content
+        assert "email.includes('controller')" in html_content
+        assert "'controller' :" in html_content
+        assert "'employee'" in html_content
         
         # Registration role should be explicit selection
         assert 'data-role="controller"' in html_content

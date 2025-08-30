@@ -3,7 +3,10 @@ from sqlalchemy import String, Integer, DateTime, Enum, ForeignKey, Numeric, Tex
 from ..db.session import Base
 import enum
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .user import User
 
 
 class TravelStatus(str, enum.Enum):
@@ -17,7 +20,9 @@ class Travel(Base):
     __tablename__ = "travels"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    # Keep employee_name for backward compatibility, but add user_id for proper relationship
     employee_name: Mapped[str] = mapped_column(String(255))
+    employee_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
     start_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     end_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     destination_city: Mapped[str] = mapped_column(String(255))
@@ -26,6 +31,8 @@ class Travel(Base):
     cost_center: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     status: Mapped[TravelStatus] = mapped_column(Enum(TravelStatus), default=TravelStatus.draft)
 
+    # Relationships
+    employee: Mapped[Optional["User"]] = relationship("User", back_populates="travels")
     receipts: Mapped[List["Receipt"]] = relationship("Receipt", back_populates="travel", cascade="all, delete-orphan")
 
 

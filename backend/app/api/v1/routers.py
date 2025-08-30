@@ -2,11 +2,15 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from . import endpoints as travels_endpoints
+from . import users
+from . import admin
 from importlib.resources import files
 from pathlib import Path
 
 router = APIRouter()
 router.include_router(travels_endpoints.router, prefix="/travels", tags=["travels"])
+router.include_router(users.router, prefix="/users", tags=["users"])
+router.include_router(admin.router, prefix="/admin", tags=["admin"])
 
 # Get the frontend directory path - go up to project root then into frontend
 project_root = Path(__file__).parent.parent.parent.parent.parent
@@ -62,3 +66,11 @@ async def debug_page():
     if debug_path.exists():
         return HTMLResponse(content=debug_path.read_text(encoding="utf-8"))
     return HTMLResponse(content="<h1>Debug page not found</h1>")
+
+@router.get("/admin", response_class=HTMLResponse)
+async def admin_dashboard():
+    """Serve the admin dashboard page."""
+    admin_path = frontend_dir / "admin.html"
+    if admin_path.exists():
+        return HTMLResponse(content=admin_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Admin dashboard not found</h1>")

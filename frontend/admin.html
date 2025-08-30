@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TravelExpense</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .admin-subtitle {
+            color: var(--gray-600);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--gray-600);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: var(--gray-700);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .actions-section {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--gray-900);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: #047857;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-300);
+        }
+
+        .assignments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .controller-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-200);
+        }
+
+        .controller-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .controller-info h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .controller-info p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .employee-count {
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .employee-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--gray-50);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .employee-info h4 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+
+        .employee-info p {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+        }
+
+        .employee-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .unassigned-section {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--warning);
+        }
+
+        .unassigned-title {
+            color: var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-600);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <h1 class="admin-title">
+                    <i class="fas fa-users-cog"></i>
+                    Admin Dashboard
+                </h1>
+                <p class="admin-subtitle">Manage controllers and employee assignments</p>
+            </div>
+            <a href="/api/v1/dashboard" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <!-- Statistics -->
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="total-controllers">-</div>
+                <div class="stat-label">Controllers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-employees">-</div>
+                <div class="stat-label">Total Employees</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="assigned-employees">-</div>
+                <div class="stat-label">Assigned Employees</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="unassigned-employees">-</div>
+                <div class="stat-label">Unassigned Employees</div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions-section">
+            <h2 class="section-title">Quick Actions</h2>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="openCreateControllerModal()">
+                    <i class="fas fa-user-tie"></i>
+                    Create Controller
+                </button>
+                <button class="btn btn-success" onclick="openCreateEmployeeModal()">
+                    <i class="fas fa-user-plus"></i>
+                    Create Employee
+                </button>
+                <button class="btn btn-secondary" onclick="refreshDashboard()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Controller Assignments -->
+        <div class="assignments-section">
+            <h2 class="section-title">Controller Assignments</h2>
+            <div class="assignments-grid" id="assignments-grid">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading assignments...
+                </div>
+            </div>
+        </div>
+
+        <!-- Unassigned Employees -->
+        <div class="unassigned-section" id="unassigned-section" style="display: none;">
+            <h2 class="section-title unassigned-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                Unassigned Employees
+            </h2>
+            <div id="unassigned-employees">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Controller Modal -->
+    <div id="create-controller-modal" class="modal">
+        <div class="modal-content">
+            <h3>Create New Controller</h3>
+            <form id="create-controller-form">
+                <div class="form-group">
+                    <label for="controller-name">Full Name</label>
+                    <input type="text" id="controller-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="controller-email">Email</label>
+                    <input type="email" id="controller-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="controller-department">Department</label>
+                    <input type="text" id="controller-department" required>
+                </div>
+                <div class="form-group">
+                    <label for="controller-company">Company</label>
+                    <input type="text" id="controller-company" value="Demo GmbH" required>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">Create Controller</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('create-controller-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Employee Modal -->
+    <div id="create-employee-modal" class="modal">
+        <div class="modal-content">
+            <h3>Create New Employee</h3>
+            <form id="create-employee-form">
+                <div class="form-group">
+                    <label for="employee-name">Full Name</label>
+                    <input type="text" id="employee-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="employee-email">Email</label>
+                    <input type="email" id="employee-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="employee-department">Department</label>
+                    <input type="text" id="employee-department" required>
+                </div>
+                <div class="form-group">
+                    <label for="employee-cost-center">Cost Center</label>
+                    <input type="text" id="employee-cost-center">
+                </div>
+                <div class="form-group">
+                    <label for="employee-company">Company</label>
+                    <input type="text" id="employee-company" value="Demo GmbH" required>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-success">Create Employee</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('create-employee-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Assign Employee Modal -->
+    <div id="assign-employee-modal" class="modal">
+        <div class="modal-content">
+            <h3>Assign Employee to Controller</h3>
+            <form id="assign-employee-form">
+                <div class="form-group">
+                    <label for="assign-employee-select">Select Employee</label>
+                    <select id="assign-employee-select" required>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assign-controller-select">Select Controller</label>
+                    <select id="assign-controller-select" required>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">Assign Employee</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('assign-employee-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let dashboardData = null;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+            setupEventHandlers();
+        });
+
+        function setupEventHandlers() {
+            // Create controller form
+            document.getElementById('create-controller-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await createController();
+            });
+
+            // Create employee form
+            document.getElementById('create-employee-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await createEmployee();
+            });
+
+            // Assign employee form
+            document.getElementById('assign-employee-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await assignEmployee();
+            });
+
+            // Modal close on backdrop click
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeModal(modal.id);
+                    }
+                });
+            });
+        }
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/api/v1/admin/dashboard');
+                if (!response.ok) throw new Error('Failed to load dashboard data');
+                
+                dashboardData = await response.json();
+                updateDashboard();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showAlert('Error loading dashboard data', 'error');
+            }
+        }
+
+        function updateDashboard() {
+            // Update statistics
+            document.getElementById('total-controllers').textContent = dashboardData.statistics.total_controllers;
+            document.getElementById('total-employees').textContent = dashboardData.statistics.total_employees;
+            document.getElementById('assigned-employees').textContent = dashboardData.statistics.assigned_employees;
+            document.getElementById('unassigned-employees').textContent = dashboardData.statistics.unassigned_employees;
+
+            // Update assignments grid
+            updateAssignmentsGrid();
+
+            // Update unassigned employees
+            updateUnassignedEmployees();
+        }
+
+        function updateAssignmentsGrid() {
+            const grid = document.getElementById('assignments-grid');
+            
+            if (dashboardData.controllers.length === 0) {
+                grid.innerHTML = '<div class="loading">No controllers found</div>';
+                return;
+            }
+
+            grid.innerHTML = dashboardData.controllers.map(controller => `
+                <div class="controller-card">
+                    <div class="controller-header">
+                        <div class="controller-info">
+                            <h3>${controller.name}</h3>
+                            <p>${controller.email} • ${controller.department}</p>
+                        </div>
+                        <div class="employee-count">${controller.employee_count} employees</div>
+                    </div>
+                    <div class="employees-list">
+                        ${controller.employees.length > 0 ? 
+                            controller.employees.map(employee => `
+                                <div class="employee-item">
+                                    <div class="employee-info">
+                                        <h4>${employee.name}</h4>
+                                        <p>${employee.email} • ${employee.department} • ${employee.cost_center || 'No cost center'}</p>
+                                    </div>
+                                    <div class="employee-actions">
+                                        <button class="btn btn-danger btn-small" onclick="unassignEmployee(${employee.id}, '${employee.name}')">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-small" onclick="deleteUser(${employee.id}, '${employee.name}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')
+                            : '<p style="color: var(--gray-600); font-style: italic;">No employees assigned</p>'
+                        }
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                        <button class="btn btn-danger btn-small" onclick="deleteUser(${controller.id}, '${controller.name}')">
+                            <i class="fas fa-trash"></i>
+                            Delete Controller
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateUnassignedEmployees() {
+            const section = document.getElementById('unassigned-section');
+            const container = document.getElementById('unassigned-employees');
+
+            if (dashboardData.unassigned_employees.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            container.innerHTML = dashboardData.unassigned_employees.map(employee => `
+                <div class="employee-item">
+                    <div class="employee-info">
+                        <h4>${employee.name}</h4>
+                        <p>${employee.email} • ${employee.department} • ${employee.cost_center || 'No cost center'}</p>
+                    </div>
+                    <div class="employee-actions">
+                        <button class="btn btn-primary btn-small" onclick="openAssignModal(${employee.id})">
+                            <i class="fas fa-user-plus"></i>
+                            Assign
+                        </button>
+                        <button class="btn btn-danger btn-small" onclick="deleteUser(${employee.id}, '${employee.name}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function createController() {
+            const formData = {
+                name: document.getElementById('controller-name').value,
+                email: document.getElementById('controller-email').value,
+                role: 'controller',
+                company: document.getElementById('controller-company').value,
+                department: document.getElementById('controller-department').value
+            };
+
+            try {
+                const response = await fetch('/api/v1/admin/controllers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to create controller');
+                }
+
+                showAlert('Controller created successfully!', 'success');
+                closeModal('create-controller-modal');
+                document.getElementById('create-controller-form').reset();
+                loadDashboardData();
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        async function createEmployee() {
+            const formData = {
+                name: document.getElementById('employee-name').value,
+                email: document.getElementById('employee-email').value,
+                role: 'employee',
+                company: document.getElementById('employee-company').value,
+                department: document.getElementById('employee-department').value,
+                cost_center: document.getElementById('employee-cost-center').value || null
+            };
+
+            try {
+                const response = await fetch('/api/v1/admin/employees', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to create employee');
+                }
+
+                showAlert('Employee created successfully!', 'success');
+                closeModal('create-employee-modal');
+                document.getElementById('create-employee-form').reset();
+                loadDashboardData();
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        async function assignEmployee() {
+            const employeeId = document.getElementById('assign-employee-select').value;
+            const controllerId = document.getElementById('assign-controller-select').value;
+
+            try {
+                const response = await fetch(`/api/v1/admin/assign-employee/${employeeId}/to-controller/${controllerId}`, {
+                    method: 'PUT'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to assign employee');
+                }
+
+                const result = await response.json();
+                showAlert(result.message, 'success');
+                closeModal('assign-employee-modal');
+                loadDashboardData();
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        async function unassignEmployee(employeeId, employeeName) {
+            if (!confirm(`Are you sure you want to unassign ${employeeName} from their controller?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/v1/admin/unassign-employee/${employeeId}`, {
+                    method: 'PUT'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to unassign employee');
+                }
+
+                const result = await response.json();
+                showAlert(result.message, 'success');
+                loadDashboardData();
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Are you sure you want to delete ${userName}? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/v1/admin/users/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to delete user');
+                }
+
+                const result = await response.json();
+                showAlert(result.message, 'success');
+                loadDashboardData();
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        function openCreateControllerModal() {
+            document.getElementById('create-controller-modal').style.display = 'block';
+        }
+
+        function openCreateEmployeeModal() {
+            document.getElementById('create-employee-modal').style.display = 'block';
+        }
+
+        function openAssignModal(employeeId) {
+            // Populate dropdowns
+            const employeeSelect = document.getElementById('assign-employee-select');
+            const controllerSelect = document.getElementById('assign-controller-select');
+
+            // Populate employees
+            employeeSelect.innerHTML = dashboardData.unassigned_employees.map(emp => 
+                `<option value="${emp.id}" ${emp.id == employeeId ? 'selected' : ''}>${emp.name} (${emp.email})</option>`
+            ).join('');
+
+            // Populate controllers
+            controllerSelect.innerHTML = dashboardData.controllers.map(controller => 
+                `<option value="${controller.id}">${controller.name} (${controller.department})</option>`
+            ).join('');
+
+            document.getElementById('assign-employee-modal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function refreshDashboard() {
+            loadDashboardData();
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alert-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+
+            container.appendChild(alertDiv);
+
+            // Remove alert after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

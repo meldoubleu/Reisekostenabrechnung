@@ -10,7 +10,8 @@ from pathlib import Path
 from backend.app.main import app
 from backend.app.db.session import Base
 from backend.app.models.travel import Travel, Receipt
-from backend.app.api.v1.travels import get_db
+from backend.app.models.user import User
+from backend.app.api.deps import get_db
 
 
 # Test database URL (in-memory SQLite for tests)
@@ -38,11 +39,10 @@ async def client(test_engine):
     # Create a session maker for the test engine
     TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False, class_=AsyncSession)
     
-    # Clear the database before each test
+    # Recreate all tables to ensure clean state
     async with test_engine.begin() as conn:
-        # Delete all data from tables (in correct order due to foreign keys)
-        await conn.execute(text("DELETE FROM receipts"))
-        await conn.execute(text("DELETE FROM travels"))
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
     
     async def get_test_db():
         async with TestSessionLocal() as session:
@@ -56,6 +56,20 @@ async def client(test_engine):
     
     # Clean up dependency overrides
     app.dependency_overrides.clear()
+
+
+@pytest_asyncio.fixture
+async def test_db(test_engine):
+    """Create a test database session for direct model testing."""
+    TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False, class_=AsyncSession)
+    
+    # Recreate all tables to ensure clean state
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    
+    async with TestSessionLocal() as session:
+        yield session
 
 
 @pytest.fixture

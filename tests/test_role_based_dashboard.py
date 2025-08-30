@@ -56,12 +56,13 @@ class TestLoginRoleDetection:
     @pytest.mark.asyncio
     async def test_landing_page_has_role_detection_logic(self, client: AsyncClient):
         """Test that the landing page contains the role detection JavaScript."""
-        response = await client.get("/api/v1/")
+        response = await client.get("/")
         html_content = response.text
         
         # Check for role detection in login form
         assert "email.includes('controller')" in html_content
-        assert "role: email.includes('controller') ? 'controller' : 'employee'" in html_content
+        assert "'controller' :" in html_content
+        assert "'employee'" in html_content
         
         # Check for role selection in registration
         assert 'data-role="employee"' in html_content

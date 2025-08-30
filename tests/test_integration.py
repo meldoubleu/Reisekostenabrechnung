@@ -40,7 +40,7 @@ class TestTravelWorkflow:
                 f"/api/v1/travels/{travel_id}/receipts",
                 files=files
             )
-            assert response.status_code == 200
+            assert response.status_code == 201
             receipt_data = response.json()
             assert receipt_data["travel_id"] == travel_id
             receipts.append(receipt_data)
@@ -85,7 +85,7 @@ class TestTravelWorkflow:
             f"/api/v1/travels/{travel_id}/receipts",
             files={"file": ("receipt.png", png_buffer, "image/png")}
         )
-        assert png_response.status_code == 200
+        assert png_response.status_code == 201
         
         # Test JPEG upload
         jpg_img = Image.new('RGB', (100, 100), color='blue')
@@ -97,7 +97,7 @@ class TestTravelWorkflow:
             f"/api/v1/travels/{travel_id}/receipts",
             files={"file": ("receipt.jpg", jpg_buffer, "image/jpeg")}
         )
-        assert jpg_response.status_code == 200
+        assert jpg_response.status_code == 201
         
         # Verify both uploads
         get_response = await client.get("/api/v1/travels/")

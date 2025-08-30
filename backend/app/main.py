@@ -44,3 +44,35 @@ async def landingpage():
     if index_path.exists():
         return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
     return HTMLResponse(content="<h1>TravelExpense - Landing page not found</h1>")
+
+@app.get("/api/v1/ui")
+async def ui_redirect():
+    """Redirect to the main dashboard."""
+    return RedirectResponse(url="/dashboard")
+
+@app.get("/dashboard")
+async def dashboard():
+    """Serve the dashboard page."""
+    frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+    dashboard_path = frontend_dir / "dashboard.html"
+    if dashboard_path.exists():
+        return HTMLResponse(content=dashboard_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Dashboard not found</h1>")
+
+@app.get("/admin")
+async def admin():
+    """Serve the admin page."""
+    frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+    admin_path = frontend_dir / "admin.html"
+    if admin_path.exists():
+        return HTMLResponse(content=admin_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Admin page not found</h1>")
+
+@app.get("/travel-form")
+async def travel_form():
+    """Serve the travel form page."""
+    frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+    form_path = frontend_dir / "travel-form.html"
+    if form_path.exists():
+        return HTMLResponse(content=form_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Travel form not found</h1>")

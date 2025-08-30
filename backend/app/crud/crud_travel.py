@@ -4,12 +4,15 @@ from sqlalchemy.orm import selectinload
 from typing import List, Optional
 
 from ..models.travel import Travel
+from ..models.user import User
 from ..schemas.travel import TravelCreate, TravelUpdate
 
 
 async def get(db: AsyncSession, id: int) -> Optional[Travel]:
     result = await db.execute(
-        select(Travel).options(selectinload(Travel.receipts)).filter(Travel.id == id)
+        select(Travel)
+        .options(selectinload(Travel.receipts), selectinload(Travel.employee))
+        .filter(Travel.id == id)
     )
     return result.scalars().first()
 
@@ -17,7 +20,7 @@ async def get(db: AsyncSession, id: int) -> Optional[Travel]:
 async def get_multi(db: AsyncSession, skip: int = 0, limit: int = 100) -> List[Travel]:
     result = await db.execute(
         select(Travel)
-        .options(selectinload(Travel.receipts))
+        .options(selectinload(Travel.receipts), selectinload(Travel.employee))
         .order_by(Travel.id.desc())
         .offset(skip)
         .limit(limit)
@@ -30,8 +33,39 @@ async def get_multi_by_employee(
 ) -> List[Travel]:
     result = await db.execute(
         select(Travel)
-        .options(selectinload(Travel.receipts))
+        .options(selectinload(Travel.receipts), selectinload(Travel.employee))
         .filter(Travel.employee_name == employee_name)
+        .order_by(Travel.id.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    return result.scalars().all()
+
+
+async def get_multi_by_employee_id(
+    db: AsyncSession, employee_id: int, skip: int = 0, limit: int = 100
+) -> List[Travel]:
+    """Get travels by employee ID (new method for proper relationship)."""
+    result = await db.execute(
+        select(Travel)
+        .options(selectinload(Travel.receipts), selectinload(Travel.employee))
+        .filter(Travel.employee_id == employee_id)
+        .order_by(Travel.id.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    return result.scalars().all()
+
+
+async def get_travels_for_controller(
+    db: AsyncSession, controller_id: int, skip: int = 0, limit: int = 100
+) -> List[Travel]:
+    """Get all travels from employees assigned to a specific controller."""
+    result = await db.execute(
+        select(Travel)
+        .options(selectinload(Travel.receipts), selectinload(Travel.employee))
+        .join(User, Travel.employee_id == User.id)
+        .filter(User.controller_id == controller_id)
         .order_by(Travel.id.desc())
         .offset(skip)
         .limit(limit)
@@ -44,9 +78,11 @@ async def create(db: AsyncSession, *, obj_in: TravelCreate) -> Travel:
     db.add(db_obj)
     await db.commit()
     await db.refresh(db_obj)
-    # Eagerly load the receipts relationship to prevent MissingGreenlet error
+    # Eagerly load the receipts and employee relationship to prevent MissingGreenlet error
     result = await db.execute(
-        select(Travel).options(selectinload(Travel.receipts)).filter(Travel.id == db_obj.id)
+        select(Travel)
+        .options(selectinload(Travel.receipts), selectinload(Travel.employee))
+        .filter(Travel.id == db_obj.id)
     )
     return result.scalars().first()
 

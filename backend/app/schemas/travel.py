@@ -54,11 +54,12 @@ class TravelBase(BaseModel):
 
 
 class TravelCreate(TravelBase):
-    pass
+    # Optional employee_id for new relationship-based travel creation
+    employee_id: Optional[int] = None
 
 
 class TravelUpdate(TravelBase):
-    pass
+    employee_id: Optional[int] = None
 
 
 class TravelStatusUpdate(BaseModel):
@@ -67,6 +68,7 @@ class TravelStatusUpdate(BaseModel):
 
 class Travel(TravelBase):
     id: int
+    employee_id: Optional[int] = None
     receipts: List[Receipt] = Field(default_factory=list)
 
     class Config:

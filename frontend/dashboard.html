@@ -674,6 +674,18 @@
                     </a>
                 </div>
 
+                <div class="nav-section" id="admin-section" style="display: none;">
+                    <div class="nav-section-title">Administration</div>
+                    <a class="nav-item" href="/api/v1/admin">
+                        <i class="fas fa-users-cog"></i>
+                        Admin Dashboard
+                    </a>
+                    <a class="nav-item" onclick="showPage('user-management')">
+                        <i class="fas fa-user-cog"></i>
+                        User Management
+                    </a>
+                </div>
+
                 <div class="nav-section" id="controller-section" style="display: none;">
                     <div class="nav-section-title">Controlling</div>
                     <a class="nav-item" onclick="showPage('approvals')">
@@ -914,13 +926,36 @@
             document.getElementById('user-name').textContent = currentUser.name;
             document.getElementById('user-company').textContent = currentUser.company;
             
-            const roleText = currentUser.role === 'controller' ? 'Controlling' : 'Mitarbeiter';
+            const roleText = currentUser.role === 'controller' ? 'Controlling' : 
+                           currentUser.role === 'admin' ? 'Administrator' : 'Mitarbeiter';
             document.getElementById('user-role').textContent = roleText;
 
             // Show role-specific UI elements
             console.log('User role:', currentUser.role); // Debug line
             console.log('Role comparison result:', currentUser.role === 'controller'); // Enhanced debug
-            if (currentUser.role === 'controller') {
+            if (currentUser.role === 'admin') {
+                console.log('Setting up admin UI'); // Debug line
+                // Show admin sections
+                document.getElementById('admin-section').style.display = 'block';
+                document.getElementById('controller-section').style.display = 'block';
+                document.getElementById('controller-actions').style.display = 'grid';
+                document.getElementById('controller-overview').style.display = 'block';
+                
+                // Show employee sections for admin overview
+                document.getElementById('employee-actions').style.display = 'grid';
+                document.getElementById('employee-travels').style.display = 'none'; // Hide old list
+                document.getElementById('employee-travel-table').style.display = 'block'; // Show new table
+                document.getElementById('personal-stats').style.display = 'grid';
+                
+                // Show all navigation
+                document.getElementById('neue-reise-button').style.display = 'block';
+                document.getElementById('meine-reisen-nav').style.display = 'block';
+                document.getElementById('belege-nav').style.display = 'block';
+                
+                // Load all data for admin
+                loadTravels();
+                loadTeamOverview();
+            } else if (currentUser.role === 'controller') {
                 console.log('Setting up controller UI'); // Debug line
                 // Show controller sections
                 document.getElementById('controller-section').style.display = 'block';

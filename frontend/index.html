@@ -348,6 +348,9 @@
                 <div class="form-group">
                     <label for="login-email">E-Mail-Adresse</label>
                     <input type="email" id="login-email" required>
+                    <small style="color: var(--gray-500); font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                        Demo-Accounts: admin@demo.com, controller@demo.com, employee@demo.com
+                    </small>
                 </div>
                 
                 <div class="form-group">
@@ -502,18 +505,46 @@
             const password = document.getElementById('login-password').value;
 
             try {
-                // Simulate API call (replace with actual authentication)
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                // Check against our demo users
+                let user = null;
                 
-                // For demo purposes, accept any email/password
-                if (email && password) {
-                    localStorage.setItem('user', JSON.stringify({
+                if (email === 'admin@demo.com' && password) {
+                    user = {
+                        id: 7,
+                        email: 'admin@demo.com',
+                        name: 'System Administrator',
+                        role: 'admin',
+                        company: 'Demo GmbH'
+                    };
+                } else if (email === 'controller@demo.com' && password) {
+                    user = {
+                        id: 5,
+                        email: 'controller@demo.com',
+                        name: 'Controller User',
+                        role: 'controller',
+                        company: 'Demo GmbH'
+                    };
+                } else if (email === 'employee@demo.com' && password) {
+                    user = {
+                        id: 6,
+                        email: 'employee@demo.com',
+                        name: 'Employee User',
+                        role: 'employee',
+                        company: 'Demo GmbH'
+                    };
+                } else if (email && password) {
+                    // Default demo login - determine role from email
+                    user = {
                         email: email,
                         name: email.split('@')[0],
-                        role: email.includes('controller') ? 'controller' : 'employee',
+                        role: email.includes('controller') ? 'controller' : 
+                              email.includes('admin') ? 'admin' : 'employee',
                         company: 'Demo GmbH'
-                    }));
-                    
+                    };
+                }
+                
+                if (user) {
+                    localStorage.setItem('user', JSON.stringify(user));
                     showAlert('Erfolgreich angemeldet! Weiterleitung...', 'success');
                     setTimeout(() => {
                         window.location.href = '/api/v1/dashboard';
