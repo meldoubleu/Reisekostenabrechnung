@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from .api.v1.routers import router as api_router
 from .db.session import init_db
@@ -26,6 +26,26 @@ if frontend_dir.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_dir)), name="static")
 
 app.include_router(api_router, prefix="/api/v1")
+
+@app.get("/favicon.ico")
+async def favicon():
+    """Return a simple favicon to prevent 404 errors."""
+    # Return a minimal ICO file content (1x1 transparent pixel)
+    ico_content = (
+        b'\x00\x00\x01\x00\x01\x00\x01\x01\x00\x00\x01\x00\x08\x00h\x05\x00\x00'
+        b'\x16\x00\x00\x00(\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x01\x00'
+        b'\x08\x00\x00\x00\x00\x00@\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+        b'\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x01\x01\x01\x00' + b'\x00' * 1282
+    )
+    return Response(content=ico_content, media_type="image/x-icon")
+
+@app.get("/robots.txt")
+async def robots():
+    """Return a robots.txt file."""
+    robots_content = """User-agent: *
+Allow: /
+"""
+    return Response(content=robots_content, media_type="text/plain")
 
 @app.get("/")
 async def root():
@@ -76,3 +96,39 @@ async def travel_form():
     if form_path.exists():
         return HTMLResponse(content=form_path.read_text(encoding="utf-8"))
     return HTMLResponse(content="<h1>Travel form not found</h1>")
+
+@app.get("/admin.html")
+async def admin_html():
+    """Serve the admin page at admin.html."""
+    frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+    admin_path = frontend_dir / "admin.html"
+    if admin_path.exists():
+        return HTMLResponse(content=admin_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Admin page not found</h1>")
+
+@app.get("/dashboard.html")
+async def dashboard_html():
+    """Serve the dashboard page at dashboard.html."""
+    frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+    dashboard_path = frontend_dir / "dashboard.html"
+    if dashboard_path.exists():
+        return HTMLResponse(content=dashboard_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Dashboard not found</h1>")
+
+@app.get("/travel-form.html")
+async def travel_form_html():
+    """Serve the travel form page at travel-form.html."""
+    frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+    form_path = frontend_dir / "travel-form.html"
+    if form_path.exists():
+        return HTMLResponse(content=form_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Travel form not found</h1>")
+
+@app.get("/index.html")
+async def index_html():
+    """Serve the index page at index.html."""
+    frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+    index_path = frontend_dir / "index.html"
+    if index_path.exists():
+        return HTMLResponse(content=index_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>TravelExpense - Landing page not found</h1>")

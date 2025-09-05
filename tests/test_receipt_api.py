@@ -12,13 +12,13 @@ class TestReceiptAPI:
     """Test receipt-related API endpoints."""
     
     @pytest.mark.asyncio
-    async def test_upload_receipt_to_travel(self, client: AsyncClient, sample_travel_data, temp_upload_dir):
+    async def test_upload_receipt_to_travel(self, client_with_users: AsyncClient, sample_travel_data, temp_upload_dir):
         """Test uploading a receipt to an existing travel."""
         # Get employee authentication headers
-        headers = await TestAuthHelper.get_employee_headers(client)
+        headers = await TestAuthHelper.get_employee_headers(client_with_users)
         
         # Create a travel first
-        create_response = await client.post(
+        create_response = await client_with_users.post(
             "/api/v1/travels/",
             json=sample_travel_data,
             headers=headers
@@ -34,7 +34,7 @@ class TestReceiptAPI:
         
         # Upload the receipt
         files = {"file": ("test_receipt.png", img_buffer, "image/png")}
-        response = await client.post(
+        response = await client_with_users.post(
             f"/api/v1/travels/{travel_id}/receipts",
             files=files,
             headers=headers
@@ -49,10 +49,10 @@ class TestReceiptAPI:
         assert "test_receipt.png" in data["file_path"]
     
     @pytest.mark.asyncio
-    async def test_upload_receipt_to_nonexistent_travel(self, client: AsyncClient):
+    async def test_upload_receipt_to_nonexistent_travel(self, client_with_users: AsyncClient):
         """Test uploading a receipt to a travel that doesn't exist."""
         # Get employee authentication headers
-        headers = await TestAuthHelper.get_employee_headers(client)
+        headers = await TestAuthHelper.get_employee_headers(client_with_users)
         
         # Create a simple test image
         img = Image.new('RGB', (100, 100), color='white')
@@ -61,7 +61,7 @@ class TestReceiptAPI:
         img_buffer.seek(0)
         
         files = {"file": ("test_receipt.png", img_buffer, "image/png")}
-        response = await client.post(
+        response = await client_with_users.post(
             "/api/v1/travels/999/receipts",
             files=files,
             headers=headers
@@ -70,13 +70,13 @@ class TestReceiptAPI:
         assert response.status_code == 404
     
     @pytest.mark.asyncio
-    async def test_travel_with_receipts_in_list(self, client: AsyncClient, sample_travel_data, temp_upload_dir):
+    async def test_travel_with_receipts_in_list(self, client_with_users: AsyncClient, sample_travel_data, temp_upload_dir):
         """Test that receipts are included when listing travels."""
         # Get employee authentication headers
-        headers = await TestAuthHelper.get_employee_headers(client)
+        headers = await TestAuthHelper.get_employee_headers(client_with_users)
         
         # Create a travel
-        create_response = await client.post(
+        create_response = await client_with_users.post(
             "/api/v1/travels/",
             json=sample_travel_data,
             headers=headers
@@ -91,14 +91,14 @@ class TestReceiptAPI:
         
         with open(receipt_path, "rb") as img_file:
             files = {"file": ("receipt.jpg", img_file, "image/jpeg")}
-            await client.post(
+            await client_with_users.post(
                 f"/api/v1/travels/{travel_id}/receipts",
                 files=files,
                 headers=headers
             )
         
         # List travels and check receipts are included
-        response = await client.get("/api/v1/travels/", headers=headers)
+        response = await client_with_users.get("/api/v1/travels/", headers=headers)
         
         assert response.status_code == 200
         data = response.json()

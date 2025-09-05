@@ -46,9 +46,6 @@ async def migrate_database():
             return
     
     # Create demo users and assign controller relationships
-    async with SessionLocal() as db:)
-    
-    # Create demo users and assign controller relationships
     async with SessionLocal() as db:
         # Create controllers
         controller1 = User(

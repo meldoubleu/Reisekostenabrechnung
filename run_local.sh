@@ -144,17 +144,39 @@ validate_files() {
 
 # Function to run comprehensive tests
 run_tests() {
-    print_header "🧪 Running Comprehensive Tests..."
+    local test_mode="${1:-quick}"
     
-    # Backend API tests
-    print_status "Running backend tests..."
-    if [ -d "tests" ]; then
-        python -m pytest tests/ -v --tb=short || print_warning "Some backend tests failed"
-    else
-        print_warning "No test directory found, skipping backend tests"
-    fi
+    case "$test_mode" in
+        "full")
+            print_header "🧪 Running Full Test Suite..."
+            print_status "Running all backend tests..."
+            if [ -d "tests" ]; then
+                python -m pytest tests/ -v --tb=short || print_warning "Some backend tests failed"
+            else
+                print_warning "No test directory found, skipping backend tests"
+            fi
+            ;;
+        "quick")
+            print_header "🧪 Running Quick Health Check..."
+            print_status "Running critical tests only..."
+            if [ -d "tests" ]; then
+                # Run only a few fast integration tests to verify basic functionality
+                python -m pytest tests/integration/system_test.py::test_database -v --tb=short || print_warning "Some critical tests failed"
+            else
+                print_warning "No test directory found, skipping backend tests"
+            fi
+            ;;
+        "skip")
+            print_header "🧪 Skipping Tests..."
+            print_status "Tests skipped for faster startup"
+            ;;
+        *)
+            print_error "Invalid test mode: $test_mode. Use 'quick', 'full', or 'skip'"
+            exit 1
+            ;;
+    esac
     
-    # Frontend validation
+    # Frontend validation (always run - it's fast)
     print_status "Validating frontend files..."
     local frontend_valid=true
     
@@ -433,10 +455,13 @@ run_all_tests() {
 show_usage() {
     echo -e "${BOLD}TravelExpense SaaS - Local Development Tool${NC}"
     echo ""
-    echo "Usage: $0 [command]"
+    echo "Usage: $0 [command] [options]"
     echo ""
     echo -e "${BOLD}Commands:${NC}"
     echo "  ${GREEN}start${NC}      Start the application (default)"
+    echo "    --quick      Fast startup with minimal tests (default)"
+    echo "    --full       Complete startup with all tests"
+    echo "    --no-tests   Skip all tests for fastest startup"
     echo "  ${GREEN}stop${NC}       Stop the application server"
     echo "  ${GREEN}restart${NC}    Restart the application server"
     echo "  ${GREEN}status${NC}     Show comprehensive system status"
@@ -445,8 +470,10 @@ show_usage() {
     echo "  ${GREEN}help${NC}       Show this help message"
     echo ""
     echo -e "${BOLD}Examples:${NC}"
-    echo "  $0              # Start the app with full validation"
-    echo "  $0 start        # Start the app"
+    echo "  $0              # Start with quick health check (recommended)"
+    echo "  $0 start --quick    # Start with minimal tests (same as default)"
+    echo "  $0 start --full     # Start with complete test suite"
+    echo "  $0 start --no-tests # Start without running any tests"
     echo "  $0 test         # Run all tests"
     echo "  $0 status       # Check what's running"
     echo ""
@@ -454,13 +481,38 @@ show_usage() {
     echo "  1. ✅ System requirements check"
     echo "  2. 🛠️  Environment setup (venv, dependencies)"
     echo "  3. 📂 File validation"
-    echo "  4. 🧪 Comprehensive testing"
+    echo "  4. 🧪 Testing (mode depends on options)"
     echo "  5. 🚀 Server startup with health checks"
     echo "  6. 🌐 Ready to use at http://localhost:8000"
 }
 
 # Parse command line arguments
 COMMAND=${1:-start}
+TEST_MODE="quick"  # Default to quick mode
+
+# Parse additional arguments for start command
+if [[ "$COMMAND" == "start" ]]; then
+    case "${2:-}" in
+        --quick)
+            TEST_MODE="quick"
+            ;;
+        --full)
+            TEST_MODE="full"
+            ;;
+        --no-tests)
+            TEST_MODE="skip"
+            ;;
+        "")
+            # No additional arguments, use default
+            ;;
+        *)
+            print_error "Unknown option for start command: $2"
+            echo ""
+            show_usage
+            exit 1
+            ;;
+    esac
+fi
 
 # Ensure we're in the right directory
 cd "$(dirname "$0")"
@@ -477,7 +529,7 @@ case $COMMAND in
     test)
         check_requirements
         setup_environment
-        run_all_tests
+        run_tests "full"
         exit 0
         ;;
     setup)
@@ -514,7 +566,7 @@ echo ""
 check_requirements
 setup_environment  
 validate_files
-run_tests
+run_tests "$TEST_MODE"
 
 # Start the server
 start_server

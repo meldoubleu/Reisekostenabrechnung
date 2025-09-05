@@ -4,10 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 from datetime import timedelta
 
-from ...core.auth import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, verify_password
+from ...core.auth import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, verify_password, get_password_hash
 from ..deps import get_db, get_current_user
-from ...models.user import User as UserModel
+from ...models.user import User as UserModel, UserRole
 from ...crud import crud_user
+from ...schemas.user import UserCreate
 
 router = APIRouter()
 security = HTTPBearer()
@@ -16,6 +17,15 @@ security = HTTPBearer()
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+
+class RegisterRequest(BaseModel):
+    email: str
+    password: str
+    name: str
+    role: str
+    company: str = "Demo GmbH"
+    department: str = "General"
 
 
 class TokenResponse(BaseModel):
@@ -61,6 +71,69 @@ async def login(login_data: LoginRequest, db: AsyncSession = Depends(get_db)):
             detail="User account is disabled",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
+    # Create access token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={
+            "sub": str(user.id),
+            "email": user.email,
+            "name": user.name,
+            "role": user.role.value
+        },
+        expires_delta=access_token_expires
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "role": user.role.value,
+            "company": user.company or "Demo Company",
+            "department": user.department or "Demo Department"
+        }
+    }
+
+
+@router.post("/register", response_model=TokenResponse)
+async def register(register_data: RegisterRequest, db: AsyncSession = Depends(get_db)):
+    """Register a new user and return JWT token."""
+    
+    # Check if user already exists
+    existing_user = await crud_user.get_by_email(db, email=register_data.email)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
+    
+    # Validate role
+    try:
+        user_role = UserRole(register_data.role)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid role. Must be one of: admin, controller, employee"
+        )
+    
+    # Hash password
+    hashed_password = get_password_hash(register_data.password)
+    
+    # Create user
+    user_data = UserCreate(
+        email=register_data.email,
+        name=register_data.name,
+        role=register_data.role,
+        company=register_data.company,
+        department=register_data.department,
+        password_hash=hashed_password,
+        is_active=True
+    )
+    
+    user = await crud_user.create(db, obj_in=user_data)
     
     # Create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

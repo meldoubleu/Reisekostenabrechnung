@@ -105,19 +105,12 @@ class TestDashboardElements:
         response = await client.get("/api/v1/dashboard")
         html_content = response.text
         
-        # Controller navigation elements
-        assert 'id="controller-section"' in html_content
-        assert 'style="display: none;"' in html_content  # Hidden by default
-        
-        # Controller sections
-        assert 'id="controller-actions"' in html_content
+        # Controller overview section (main controller content)
         assert 'id="controller-overview"' in html_content
         
         # Controller-specific content
         assert "Team-Übersicht" in html_content
-        assert "Genehmigungen" in html_content
-        assert "Team-Berichte" in html_content
-        assert "Controlling" in html_content  # Role text, not CONTROLLING
+        assert "Controlling" in html_content  # Role text
     
     @pytest.mark.asyncio
     async def test_dashboard_has_role_detection_javascript(self, client: AsyncClient):

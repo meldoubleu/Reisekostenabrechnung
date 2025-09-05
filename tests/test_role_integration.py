@@ -53,7 +53,6 @@ class TestRoleBasedIntegration:
         html_content = response.text
         
         # Controller elements should be present
-        assert 'id="controller-section"' in html_content
         assert 'id="controller-overview"' in html_content
         assert "loadTeamOverview()" in html_content
 

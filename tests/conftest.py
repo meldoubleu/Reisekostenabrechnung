@@ -104,14 +104,14 @@ def sample_receipt_content():
 
 
 @pytest_asyncio.fixture
-async def admin_headers(client: AsyncClient):
+async def admin_headers(client_with_users: AsyncClient):
     """Create authentication headers for admin user."""
     login_data = {
         "email": "admin@demo.com",
         "password": "admin123"
     }
     
-    response = await client.post("/api/v1/auth/login", json=login_data)
+    response = await client_with_users.post("/api/v1/auth/login", json=login_data)
     if response.status_code == 200:
         token_data = response.json()
         return {"Authorization": f"Bearer {token_data['access_token']}"}
@@ -121,14 +121,14 @@ async def admin_headers(client: AsyncClient):
 
 
 @pytest_asyncio.fixture
-async def employee_headers(client: AsyncClient):
+async def employee_headers(client_with_users: AsyncClient):
     """Create authentication headers for employee user."""
     login_data = {
         "email": "max.mustermann@demo.com",
         "password": "employee123"
     }
     
-    response = await client.post("/api/v1/auth/login", json=login_data)
+    response = await client_with_users.post("/api/v1/auth/login", json=login_data)
     if response.status_code == 200:
         token_data = response.json()
         return {"Authorization": f"Bearer {token_data['access_token']}"}
@@ -138,17 +138,86 @@ async def employee_headers(client: AsyncClient):
 
 
 @pytest_asyncio.fixture
-async def controller_headers(client: AsyncClient):
+async def controller_headers(client_with_users: AsyncClient):
     """Create authentication headers for controller user."""
     login_data = {
         "email": "controller1@demo.com",
         "password": "controller123"
     }
     
-    response = await client.post("/api/v1/auth/login", json=login_data)
+    response = await client_with_users.post("/api/v1/auth/login", json=login_data)
     if response.status_code == 200:
         token_data = response.json()
         return {"Authorization": f"Bearer {token_data['access_token']}"}
     else:
         # Fallback if login endpoint doesn't exist or fails
         return {"Authorization": "Bearer controller_test_token"}
+
+
+@pytest_asyncio.fixture
+async def demo_users(test_engine):
+    """Create demo users in the test database."""
+    from backend.app.core.auth import get_password_hash
+    
+    TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False, class_=AsyncSession)
+    
+    async with TestSessionLocal() as session:
+        # Create admin user
+        admin_user = User(
+            email="admin@demo.com",
+            name="System Administrator",
+            password_hash=get_password_hash("admin123"),
+            role="admin",
+            company="Demo GmbH",
+            department="IT"
+        )
+        session.add(admin_user)
+        
+        # Create controller user
+        controller_user = User(
+            email="controller1@demo.com",
+            name="Anna Controlling",
+            password_hash=get_password_hash("controller123"),
+            role="controller",
+            company="Demo GmbH",
+            department="Finance"
+        )
+        session.add(controller_user)
+        
+        # Create employee user
+        employee_user = User(
+            email="max.mustermann@demo.com",
+            name="Max Mustermann",
+            password_hash=get_password_hash("employee123"),
+            role="employee",
+            company="Demo GmbH",
+            department="Sales",
+            cost_center="SALES-001"
+        )
+        session.add(employee_user)
+        
+        await session.commit()
+        return {
+            "admin": admin_user,
+            "controller": controller_user,
+            "employee": employee_user
+        }
+
+
+@pytest_asyncio.fixture
+async def client_with_users(test_engine, demo_users):
+    """Create a test client with demo users already in the database."""
+    TestSessionLocal = async_sessionmaker(test_engine, expire_on_commit=False, class_=AsyncSession)
+    
+    async def get_test_db():
+        async with TestSessionLocal() as session:
+            yield session
+    
+    # Override the dependency
+    app.dependency_overrides[get_db] = get_test_db
+    
+    async with AsyncClient(app=app, base_url="http://test") as ac:
+        yield ac
+    
+    # Clean up dependency overrides
+    app.dependency_overrides.clear()

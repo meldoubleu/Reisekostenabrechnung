@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from ..models.user import User, UserRole
 from ..schemas.user import UserCreate, UserUpdate
+from ..core.auth import get_password_hash
 
 
 async def get(db: AsyncSession, id: int) -> Optional[User]:
@@ -62,7 +63,17 @@ async def get_controllers(db: AsyncSession) -> List[User]:
 
 
 async def create(db: AsyncSession, *, obj_in: UserCreate) -> User:
-    db_obj = User(**obj_in.model_dump())
+    # Convert schema to dict and handle password
+    obj_data = obj_in.model_dump()
+    
+    # Handle password hashing
+    if obj_data.get('password') and not obj_data.get('password_hash'):
+        obj_data['password_hash'] = get_password_hash(obj_data['password'])
+    
+    # Remove password field since it's not in the User model
+    obj_data.pop('password', None)
+    
+    db_obj = User(**obj_data)
     db.add(db_obj)
     await db.commit()
     await db.refresh(db_obj)

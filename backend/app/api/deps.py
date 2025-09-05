@@ -33,11 +33,20 @@ async def get_current_user(
     user_id_int = int(user_id)
     
     # For demo users, create a mock user object
-    if user_id_int in [1, 2, 3, 997, 998, 999]:
+    # Updated to match actual database users
+    if user_id_int in [1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 13, 997, 998, 999]:
         role_map = {
-            1: UserRole.admin,
-            2: UserRole.controller, 
-            3: UserRole.employee,
+            1: UserRole.controller,  # controller1@demo.com
+            2: UserRole.controller,  # controller2@demo.com  
+            3: UserRole.employee,    # max.mustermann@demo.com
+            5: UserRole.employee,    # michael.weber@demo.com
+            6: UserRole.employee,    # lisa.mueller@demo.com
+            7: UserRole.admin,       # admin@demo.com
+            8: UserRole.controller,  # test@test.com
+            9: UserRole.employee,    # test123@test.com
+            11: UserRole.employee,   # malte@demo.com
+            12: UserRole.employee,   # test.employee@demo.com
+            13: UserRole.employee,   # integration.test@demo.com
             997: UserRole.employee,
             998: UserRole.controller,
             999: UserRole.admin

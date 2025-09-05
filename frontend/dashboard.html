@@ -455,58 +455,6 @@
         }
 
         /* Team Overview Styles */
-        .team-filters {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .team-filters select {
-            padding: 0.5rem;
-            border: 1px solid var(--gray-300);
-            border-radius: 0.375rem;
-            background: var(--white);
-            color: var(--gray-700);
-        }
-
-        .team-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-
-        .team-summary-card {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .team-summary-card .metric {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--gray-900);
-            margin-bottom: 0.25rem;
-        }
-
-        .team-summary-card .label {
-            font-size: 0.875rem;
-            color: var(--gray-600);
-        }
-
-        .team-summary-card.budget-ok .metric {
-            color: var(--success);
-        }
-
-        .team-summary-card.budget-warning .metric {
-            color: var(--warning);
-        }
-
-        .team-summary-card.budget-over .metric {
-            color: var(--error);
-        }
-
         .team-table-container {
             background: var(--white);
             border-radius: 0.5rem;
@@ -579,17 +527,6 @@
         .department-marketing { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .department-development { background: rgba(37, 99, 235, 0.1); color: var(--primary); }
         .department-hr { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-
-        .budget-status {
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .budget-ok { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .budget-warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .budget-over { background: rgba(239, 68, 68, 0.1); color: var(--error); }
 
         .team-actions {
             display: flex;
@@ -686,22 +623,6 @@
                     </a>
                 </div>
 
-                <div class="nav-section" id="controller-section" style="display: none;">
-                    <div class="nav-section-title">Controlling</div>
-                    <a class="nav-item" onclick="showPage('approvals')">
-                        <i class="fas fa-check-circle"></i>
-                        Genehmigungen
-                    </a>
-                    <a class="nav-item" onclick="showPage('reports')">
-                        <i class="fas fa-chart-bar"></i>
-                        Berichte
-                    </a>
-                    <a class="nav-item" onclick="showPage('team')">
-                        <i class="fas fa-users"></i>
-                        Team-Übersicht
-                    </a>
-                </div>
-
                 <div class="nav-section">
                     <div class="nav-section-title">Verwaltung</div>
                     <a class="nav-item" onclick="showPage('profile')">
@@ -784,24 +705,7 @@
                         </a>
                     </div>
 
-                    <!-- Controller Actions - Controller Only -->
-                    <div class="quick-actions" id="controller-actions" style="display: none;">
-                        <a href="#" class="quick-action" onclick="showPage('approvals')">
-                            <i class="fas fa-check-circle"></i>
-                            <strong>Genehmigungen</strong>
-                            <div>Reisen zur Freigabe prüfen</div>
-                        </a>
-                        <a href="#" class="quick-action" onclick="showPage('team')">
-                            <i class="fas fa-users"></i>
-                            <strong>Team-Übersicht</strong>
-                            <div>Alle Mitarbeiter und deren Reisen</div>
-                        </a>
-                        <a href="#" class="quick-action" onclick="showPage('reports')">
-                            <i class="fas fa-chart-bar"></i>
-                            <strong>Team-Berichte</strong>
-                            <div>Auswertungen und Statistiken</div>
-                        </a>
-                    </div>
+                    <!-- Controller Actions removed - showing only team table -->
 
                     <!-- Employee Travel List -->
                     <div class="travel-list" id="employee-travels">
@@ -844,28 +748,8 @@
                     <div class="travel-list" id="controller-overview" style="display: none;">
                         <div class="travel-list-header">
                             <div class="travel-list-title">Team-Übersicht & Ausgaben YTD</div>
-                            <div class="team-filters">
-                                <select id="department-filter" onchange="filterTeam()">
-                                    <option value="">Alle Abteilungen</option>
-                                    <option value="sales">Vertrieb</option>
-                                    <option value="marketing">Marketing</option>
-                                    <option value="development">Entwicklung</option>
-                                    <option value="hr">HR</option>
-                                </select>
-                                <select id="status-filter" onchange="filterTeam()">
-                                    <option value="">Alle Status</option>
-                                    <option value="active">Aktive Reisen</option>
-                                    <option value="pending">Zur Freigabe</option>
-                                    <option value="approved">Genehmigt</option>
-                                </select>
-                            </div>
                         </div>
                         
-                        <!-- Team Summary Cards -->
-                        <div class="team-summary" id="team-summary">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-
                         <!-- Team Members Table -->
                         <div class="team-table-container">
                             <table class="team-table" id="team-table">
@@ -875,7 +759,6 @@
                                         <th>Abteilung</th>
                                         <th>Aktive Reisen</th>
                                         <th>YTD Ausgaben</th>
-                                        <th>Budget Status</th>
                                         <th>Zur Freigabe</th>
                                         <th>Aktionen</th>
                                     </tr>
@@ -942,8 +825,6 @@
             if (currentUser.role === 'controller') {
                 console.log('Setting up controller UI'); // Debug line
                 // Show controller sections
-                document.getElementById('controller-section').style.display = 'block';
-                document.getElementById('controller-actions').style.display = 'grid';
                 document.getElementById('controller-overview').style.display = 'block';
                 
                 // Hide employee sections
@@ -977,17 +858,14 @@
                 document.getElementById('belege-nav').style.display = 'block';
                 
                 // Hide controller sections
-                document.getElementById('controller-section').style.display = 'none';
-                document.getElementById('controller-actions').style.display = 'none';
                 document.getElementById('controller-overview').style.display = 'none';
                 
                 // Load employee-specific data
                 loadTravels();
             }
 
-            // Show controller sections if user is controller
+            // Update stats for controllers
             if (currentUser.role === 'controller') {
-                document.getElementById('controller-section').style.display = 'block';
                 updateControllerStats();
             }
         }
@@ -1023,9 +901,6 @@
                 'dashboard': 'Dashboard',
                 'travels': 'Meine Reisen',
                 'receipts': 'Belege',
-                'approvals': 'Genehmigungen',
-                'reports': 'Berichte',
-                'team': 'Team-Übersicht',
                 'profile': 'Profil',
                 'settings': 'Einstellungen'
             };
@@ -1132,77 +1007,41 @@
         // Controller-specific functions
         async function loadTeamOverview() {
             try {
-                // Comprehensive team data for demo purposes
-                const teamMembers = [
-                    {
-                        id: 1,
-                        name: 'Max Mustermann',
-                        email: 'max.mustermann@demo.com',
-                        department: 'sales',
-                        activeTravels: 2,
-                        ytdExpenses: 15750,
-                        yearBudget: 20000,
-                        pendingApprovals: 3,
-                        status: 'active'
-                    },
-                    {
-                        id: 2,
-                        name: 'Sarah Schmidt',
-                        email: 'sarah.schmidt@demo.com',
-                        department: 'marketing',
-                        activeTravels: 1,
-                        ytdExpenses: 8900,
-                        yearBudget: 12000,
-                        pendingApprovals: 1,
-                        status: 'active'
-                    },
-                    {
-                        id: 3,
-                        name: 'Michael Weber',
-                        email: 'michael.weber@demo.com',
-                        department: 'development',
-                        activeTravels: 0,
-                        ytdExpenses: 3450,
-                        yearBudget: 8000,
-                        pendingApprovals: 0,
-                        status: 'inactive'
-                    },
-                    {
-                        id: 4,
-                        name: 'Lisa Müller',
-                        email: 'lisa.mueller@demo.com',
-                        department: 'hr',
-                        activeTravels: 3,
-                        ytdExpenses: 18200,
-                        yearBudget: 15000,
-                        pendingApprovals: 5,
-                        status: 'active'
-                    },
-                    {
-                        id: 5,
-                        name: 'Thomas Klein',
-                        email: 'thomas.klein@demo.com',
-                        department: 'sales',
-                        activeTravels: 1,
-                        ytdExpenses: 12300,
-                        yearBudget: 18000,
-                        pendingApprovals: 2,
-                        status: 'active'
-                    },
-                    {
-                        id: 6,
-                        name: 'Anna Fischer',
-                        email: 'anna.fischer@demo.com',
-                        department: 'marketing',
-                        activeTravels: 2,
-                        ytdExpenses: 6800,
-                        yearBudget: 10000,
-                        pendingApprovals: 1,
-                        status: 'active'
+                // Fetch real employee data from the API
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.error('No authentication token found');
+                    showTeamEmptyState();
+                    return;
+                }
+
+                const response = await fetch('/api/v1/users/my-team', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
-                ];
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const employees = await response.json();
                 
-                displayTeamSummary(teamMembers);
+                // Transform API data to match the expected format for the table
+                const teamMembers = employees.map(emp => ({
+                    id: emp.id,
+                    name: emp.name,
+                    email: emp.email,
+                    department: emp.department || 'general',
+                    activeTravels: 0, // TODO: This should come from travel data
+                    ytdExpenses: 0,   // TODO: This should come from travel expense data  
+                    yearBudget: 20000, // TODO: This should come from user budget data
+                    pendingApprovals: 0, // TODO: This should come from travel approval data
+                    status: 'active'
+                }));
+                
                 displayTeamTable(teamMembers);
             } catch (error) {
                 console.error('Error loading team data:', error);
@@ -1210,52 +1049,8 @@
             }
         }
 
-        function displayTeamSummary(teamMembers) {
-            const totalMembers = teamMembers.length;
-            const activeMembers = teamMembers.filter(m => m.status === 'active').length;
-            const totalYTDExpenses = teamMembers.reduce((sum, m) => sum + m.ytdExpenses, 0);
-            const totalBudget = teamMembers.reduce((sum, m) => sum + m.yearBudget, 0);
-            const totalPendingApprovals = teamMembers.reduce((sum, m) => sum + m.pendingApprovals, 0);
-            const budgetUtilization = (totalYTDExpenses / totalBudget * 100).toFixed(1);
-            
-            const summaryHtml = `
-                <div class="team-summary-card">
-                    <div class="metric">${totalMembers}</div>
-                    <div class="label">Team Mitglieder</div>
-                </div>
-                <div class="team-summary-card">
-                    <div class="metric">${activeMembers}</div>
-                    <div class="label">Aktive Reisende</div>
-                </div>
-                <div class="team-summary-card ${budgetUtilization > 90 ? 'budget-over' : budgetUtilization > 75 ? 'budget-warning' : 'budget-ok'}">
-                    <div class="metric">€${totalYTDExpenses.toLocaleString()}</div>
-                    <div class="label">YTD Ausgaben</div>
-                </div>
-                <div class="team-summary-card">
-                    <div class="metric">€${totalBudget.toLocaleString()}</div>
-                    <div class="label">Jahresbudget</div>
-                </div>
-                <div class="team-summary-card ${totalPendingApprovals > 10 ? 'budget-warning' : 'budget-ok'}">
-                    <div class="metric">${totalPendingApprovals}</div>
-                    <div class="label">Zur Freigabe</div>
-                </div>
-                <div class="team-summary-card ${budgetUtilization > 90 ? 'budget-over' : budgetUtilization > 75 ? 'budget-warning' : 'budget-ok'}">
-                    <div class="metric">${budgetUtilization}%</div>
-                    <div class="label">Budget genutzt</div>
-                </div>
-            `;
-            
-            document.getElementById('team-summary').innerHTML = summaryHtml;
-        }
-
         function displayTeamTable(teamMembers) {
             const tableBodyHtml = teamMembers.map(member => {
-                const budgetUtilization = (member.ytdExpenses / member.yearBudget * 100);
-                const budgetStatus = budgetUtilization > 100 ? 'budget-over' : 
-                                   budgetUtilization > 90 ? 'budget-warning' : 'budget-ok';
-                const budgetStatusText = budgetUtilization > 100 ? 'Überzogen' : 
-                                       budgetUtilization > 90 ? 'Kritisch' : 'Im Rahmen';
-                
                 return `
                     <tr>
                         <td>
@@ -1276,11 +1071,6 @@
                         <td>
                             <div class="expense-amount">€${member.ytdExpenses.toLocaleString()}</div>
                             <div class="expense-budget">von €${member.yearBudget.toLocaleString()}</div>
-                        </td>
-                        <td>
-                            <span class="budget-status ${budgetStatus}">
-                                ${budgetStatusText} (${budgetUtilization.toFixed(1)}%)
-                            </span>
                         </td>
                         <td>
                             ${member.pendingApprovals > 0 ? 
@@ -1317,11 +1107,6 @@
             return departments[dept] || dept;
         }
 
-        function filterTeam() {
-            // Implementation for filtering team members
-            console.log('Filtering team members...');
-        }
-
         function viewMemberDetails(memberId) {
             alert(`Viewing details for member ID: ${memberId}`);
         }
@@ -1331,12 +1116,16 @@
         }
 
         function showTeamEmptyState() {
-            document.getElementById('team-summary').innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-users"></i>
-                    <h3>Keine Teamdaten verfügbar</h3>
-                    <p>Es wurden noch keine Teamdaten geladen.</p>
-                </div>
+            document.getElementById('team-table-body').innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center">
+                        <div class="empty-state" style="padding: 2rem;">
+                            <i class="fas fa-users" style="font-size: 2rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                            <h3 style="color: var(--gray-600); margin-bottom: 0.5rem;">Keine Mitarbeiter zugewiesen</h3>
+                            <p style="color: var(--gray-500);">Ihnen wurden noch keine Mitarbeiter zugewiesen.</p>
+                        </div>
+                    </td>
+                </tr>
             `;
         }
 

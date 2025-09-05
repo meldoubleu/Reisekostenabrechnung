@@ -7,6 +7,7 @@ from ...crud import crud_user, crud_travel
 from ...schemas.user import User, UserCreate, UserUpdate, UserWithRelations
 from ...schemas.travel import Travel
 from ...models.user import UserRole, User as UserModel
+from ...core.auth import get_password_hash
 from ..deps import get_db, get_current_admin_user
 
 router = APIRouter()

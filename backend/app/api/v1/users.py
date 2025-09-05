@@ -4,7 +4,7 @@ from typing import List
 
 from ...crud import crud_user
 from ...schemas.user import User, UserCreate, UserUpdate, UserWithRelations
-from ..deps import get_db, get_current_admin_user
+from ..deps import get_db, get_current_admin_user, get_current_controller_user
 from ...models.user import User as UserModel
 
 router = APIRouter()
@@ -44,6 +44,20 @@ async def get_controllers(
 ):
     """Get all controllers with their assigned employees. Admin only."""
     return await crud_user.get_controllers(db)
+
+
+@router.get("/my-team", response_model=List[User])
+async def get_my_team(
+    *,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserModel = Depends(get_current_controller_user),
+    skip: int = 0,
+    limit: int = 100,
+):
+    """Get all employees assigned to the current controller."""
+    return await crud_user.get_employees_by_controller(
+        db, controller_id=current_user.id, skip=skip, limit=limit
+    )
 
 
 @router.get("/{user_id}", response_model=UserWithRelations)

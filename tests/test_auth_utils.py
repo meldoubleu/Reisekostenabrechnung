@@ -29,17 +29,17 @@ class TestAuthHelper:
     @staticmethod
     async def get_admin_headers(client: AsyncClient) -> Dict[str, str]:
         """Get admin authentication headers."""
-        return await TestAuthHelper.get_auth_headers(client, "admin@demo.com")
+        return await TestAuthHelper.get_auth_headers(client, "admin@demo.com", "admin123")
     
     @staticmethod
     async def get_controller_headers(client: AsyncClient) -> Dict[str, str]:
         """Get controller authentication headers."""
-        return await TestAuthHelper.get_auth_headers(client, "controller@demo.com")
+        return await TestAuthHelper.get_auth_headers(client, "controller1@demo.com", "controller123")
     
     @staticmethod
     async def get_employee_headers(client: AsyncClient) -> Dict[str, str]:
         """Get employee authentication headers."""
-        return await TestAuthHelper.get_auth_headers(client, "employee@demo.com")
+        return await TestAuthHelper.get_auth_headers(client, "max.mustermann@demo.com", "employee123")
 
 
 def require_auth(role: Optional[str] = None):

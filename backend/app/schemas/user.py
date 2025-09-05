@@ -21,6 +21,8 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     controller_id: Optional[int] = None
+    password: Optional[str] = None
+    password_hash: Optional[str] = None
 
 
 class UserUpdate(BaseModel):

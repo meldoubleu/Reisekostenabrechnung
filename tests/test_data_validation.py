@@ -112,7 +112,7 @@ class TestRoleBasedBusinessRules:
         assert "document.getElementById('personal-stats').style.display = 'grid'" in html_content
         
         # Employees should not see controller elements
-        assert "document.getElementById('controller-section').style.display = 'none'" in html_content
+        assert "document.getElementById('controller-overview').style.display = 'none'" in html_content
     
     @pytest.mark.asyncio
     async def test_role_determination_logic(self, client: AsyncClient):

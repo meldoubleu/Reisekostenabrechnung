@@ -13,13 +13,13 @@ class TestTravelWorkflow:
     """Test the complete travel expense workflow."""
     
     @pytest.mark.asyncio
-    async def test_complete_travel_workflow(self, client: AsyncClient, sample_travel_data, temp_upload_dir):
+    async def test_complete_travel_workflow(self, client_with_users: AsyncClient, sample_travel_data, temp_upload_dir):
         """Test the complete workflow: create travel -> upload receipts -> submit -> export."""
         # Get employee authentication headers
-        headers = await TestAuthHelper.get_employee_headers(client)
+        headers = await TestAuthHelper.get_employee_headers(client_with_users)
     
         # Step 1: Create a travel
-        create_response = await client.post(
+        create_response = await client_with_users.post(
             "/api/v1/travels/",
             json=sample_travel_data,
             headers=headers
@@ -40,7 +40,7 @@ class TestTravelWorkflow:
             img_buffer.seek(0)
             
             files = {"file": (f"receipt_{i}.png", img_buffer, "image/png")}
-            response = await client.post(
+            response = await client_with_users.post(
                 f"/api/v1/travels/{travel_id}/receipts",
                 files=files,
                 headers=headers
@@ -51,31 +51,31 @@ class TestTravelWorkflow:
             receipts.append(receipt_data)
         
         # Step 3: Verify travel has receipts
-        get_response = await client.get("/api/v1/travels/", headers=headers)
+        get_response = await client_with_users.get("/api/v1/travels/", headers=headers)
         travels = get_response.json()
         our_travel = next(t for t in travels if t["id"] == travel_id)
         assert len(our_travel["receipts"]) == 3
         
         # Step 4: Submit the travel
-        submit_response = await client.post(f"/api/v1/travels/{travel_id}/submit", headers=headers)
+        submit_response = await client_with_users.post(f"/api/v1/travels/{travel_id}/submit", headers=headers)
         assert submit_response.status_code == 200
         submitted_data = submit_response.json()
         assert submitted_data["status"] == "submitted"
         
         # Step 5: Export as PDF
-        export_response = await client.get(f"/api/v1/travels/{travel_id}/export", headers=headers)
+        export_response = await client_with_users.get(f"/api/v1/travels/{travel_id}/export", headers=headers)
         assert export_response.status_code == 200
         assert export_response.headers["content-type"] == "application/pdf"
         assert len(export_response.content) > 0  # PDF should have content
     
     @pytest.mark.asyncio
-    async def test_upload_different_file_types(self, client: AsyncClient, sample_travel_data, temp_upload_dir):
+    async def test_upload_different_file_types(self, client_with_users: AsyncClient, sample_travel_data, temp_upload_dir):
         """Test uploading different types of receipt files."""
         # Get employee authentication headers
-        headers = await TestAuthHelper.get_employee_headers(client)
+        headers = await TestAuthHelper.get_employee_headers(client_with_users)
     
         # Create a travel
-        create_response = await client.post(
+        create_response = await client_with_users.post(
             "/api/v1/travels/",
             json=sample_travel_data,
             headers=headers
@@ -89,7 +89,7 @@ class TestTravelWorkflow:
         png_img.save(png_buffer, format='PNG')
         png_buffer.seek(0)
         
-        png_response = await client.post(
+        png_response = await client_with_users.post(
             f"/api/v1/travels/{travel_id}/receipts",
             files={"file": ("receipt.png", png_buffer, "image/png")},
             headers=headers
@@ -102,7 +102,7 @@ class TestTravelWorkflow:
         jpg_img.save(jpg_buffer, format='JPEG')
         jpg_buffer.seek(0)
         
-        jpg_response = await client.post(
+        jpg_response = await client_with_users.post(
             f"/api/v1/travels/{travel_id}/receipts",
             files={"file": ("receipt.jpg", jpg_buffer, "image/jpeg")},
             headers=headers
@@ -110,7 +110,7 @@ class TestTravelWorkflow:
         assert jpg_response.status_code == 201
         
         # Verify both uploads
-        get_response = await client.get("/api/v1/travels/", headers=headers)
+        get_response = await client_with_users.get("/api/v1/travels/", headers=headers)
         travels = get_response.json()
         our_travel = next(t for t in travels if t["id"] == travel_id)
         assert len(our_travel["receipts"]) == 2
@@ -140,10 +140,10 @@ class TestTravelWorkflow:
         assert response.status_code == 403  # Should be 403 (unauthorized)
     
     @pytest.mark.asyncio
-    async def test_travel_list_ordering(self, client: AsyncClient, sample_travel_data):
+    async def test_travel_list_ordering(self, client_with_users: AsyncClient, sample_travel_data):
         """Test that travels are returned in the correct order (newest first)."""
         # Get employee authentication headers
-        headers = await TestAuthHelper.get_employee_headers(client)
+        headers = await TestAuthHelper.get_employee_headers(client_with_users)
     
         # Create multiple travels
         travel_ids = []
@@ -151,7 +151,7 @@ class TestTravelWorkflow:
             modified_data = sample_travel_data.copy()
             modified_data["employee_name"] = f"Employee {i}"
     
-            response = await client.post(
+            response = await client_with_users.post(
                 "/api/v1/travels/",
                 json=modified_data,
                 headers=headers
@@ -160,7 +160,7 @@ class TestTravelWorkflow:
             travel_ids.append(response.json()["id"])
     
         # Get list of travels
-        response = await client.get("/api/v1/travels/", headers=headers)
+        response = await client_with_users.get("/api/v1/travels/", headers=headers)
         assert response.status_code == 200
         travels = response.json()
         
