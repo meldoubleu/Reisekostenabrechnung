@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Auth Debug</title>
+</head>
+<body>
+    <h1>Frontend Authentication Debug</h1>
+    
+    <div>
+        <h2>1. Check Local Storage</h2>
+        <button onclick="checkLocalStorage()">Check Token & User</button>
+        <div id="storageResult"></div>
+    </div>
+    
+    <div>
+        <h2>2. Test Login</h2>
+        <button onclick="testLogin()">Login as Demo User</button>
+        <div id="loginResult"></div>
+    </div>
+    
+    <div>
+        <h2>3. Test Travel Creation</h2>
+        <button onclick="testTravelCreation()">Create Test Travel</button>
+        <div id="travelResult"></div>
+    </div>
+
+    <script>
+        function checkLocalStorage() {
+            const token = localStorage.getItem('token');
+            const userData = localStorage.getItem('user');
+            
+            const result = document.getElementById('storageResult');
+            result.innerHTML = `
+                <p><strong>Token:</strong> ${token ? 'Present' : 'Missing'}</p>
+                <p><strong>User Data:</strong> ${userData ? 'Present' : 'Missing'}</p>
+                ${token ? `<p><strong>Token:</strong> ${token.substring(0, 50)}...</p>` : ''}
+                ${userData ? `<p><strong>User:</strong> ${userData}</p>` : ''}
+            `;
+        }
+        
+        async function testLogin() {
+            try {
+                const response = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'max.mustermann@demo.com',
+                        password: 'employee123'
+                    })
+                });
+                
+                const result = document.getElementById('loginResult');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    result.innerHTML = `
+                        <p style="color: green;"><strong>Login successful!</strong></p>
+                        <p>User: ${data.user.name}</p>
+                        <p>Role: ${data.user.role}</p>
+                    `;
+                } else {
+                    const errorData = await response.json();
+                    result.innerHTML = `<p style="color: red;">Login failed: ${errorData.detail}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testTravelCreation() {
+            try {
+                const token = localStorage.getItem('token');
+                const userData = localStorage.getItem('user');
+                
+                if (!token || !userData) {
+                    document.getElementById('travelResult').innerHTML = '<p style="color: red;">Please login first!</p>';
+                    return;
+                }
+                
+                const user = JSON.parse(userData);
+                
+                const travelData = {
+                    employee_name: user.name,
+                    purpose: 'business',
+                    start_at: '2025-09-07T00:00:00Z',
+                    end_at: '2025-09-08T23:59:59Z',
+                    departure_location: 'Musterstraße 123, 80331 München, Deutschland',
+                    destination_city: 'Berlin',
+                    destination_country: 'Germany',
+                    cost_center: user.cost_center || null
+                    // No status field needed for submit endpoint
+                };
+                
+                console.log('Sending travel data:', travelData);
+                console.log('Token:', token);
+                
+                const response = await fetch('/api/v1/travels/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(travelData)
+                });
+                
+                const result = document.getElementById('travelResult');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `
+                        <p style="color: green;"><strong>Travel created successfully!</strong></p>
+                        <p>Travel ID: ${data.id}</p>
+                        <p>Status: ${data.status}</p>
+                    `;
+                } else {
+                    const errorData = await response.json();
+                    result.innerHTML = `
+                        <p style="color: red;">Travel creation failed!</p>
+                        <p>Status: ${response.status}</p>
+                        <p>Error: ${errorData.detail || 'Unknown error'}</p>
+                    `;
+                    
+                    console.error('Travel creation failed:', response.status, errorData);
+                }
+            } catch (error) {
+                document.getElementById('travelResult').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                console.error('Travel creation error:', error);
+            }
+        }
+        
+        // Auto-check on page load
+        document.addEventListener('DOMContentLoaded', checkLocalStorage);
+    </script>
+</body>
+</html>

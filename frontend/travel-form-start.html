@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reise beginnen - TravelExpense</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+        }
+
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            color: var(--gray-500);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .step.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .step.completed {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .step.inactive {
+            background: var(--gray-200);
+            color: var(--gray-500);
+        }
+
+        .step-divider {
+            width: 3rem;
+            height: 2px;
+            background: var(--gray-200);
+            margin: 0 1rem;
+        }
+
+        .step-divider.active {
+            background: var(--primary);
+        }
+
+        .step-divider.completed {
+            background: var(--success);
+        }
+
+        /* Form Card */
+        .form-card {
+            background: var(--white);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-200);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-subtitle {
+            color: var(--gray-600);
+            font-size: 1rem;
+        }
+
+        /* Form Sections */
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        /* Form Elements */
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .required {
+            color: var(--error);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Daily Expenses Table */
+        .expenses-table {
+            background: var(--white);
+            border-radius: 0.5rem;
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .expenses-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .expenses-table th {
+            background: var(--gray-50);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-900);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .expenses-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--gray-100);
+            vertical-align: middle;
+        }
+
+        .day-cell {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .expense-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .expense-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        .add-expense-btn {
+            padding: 0.375rem 0.75rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .add-expense-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: var(--gray-50);
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .expense-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .expense-details {
+            flex: 1;
+        }
+
+        .expense-amount {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .expense-description {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .remove-expense-btn {
+            padding: 0.25rem 0.5rem;
+            background: var(--error);
+            color: var(--white);
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .remove-expense-btn:hover {
+            background: #dc2626;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-300);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem auto;
+                padding: 0 0.5rem;
+            }
+
+            .form-card {
+                padding: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .progress-steps {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .step-divider {
+                width: 2px;
+                height: 1rem;
+                margin: 0.5rem auto;
+            }
+
+            .expenses-table {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <a href="dashboard.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Zurück
+            </a>
+            <div class="logo">TravelExpense</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active" id="step-1">
+                <i class="fas fa-plane"></i>
+                Reisedetails
+            </div>
+            <div class="step-divider" id="divider-1"></div>
+            <div class="step inactive" id="step-2">
+                <i class="fas fa-calendar-day"></i>
+                Tägliche Ausgaben
+            </div>
+        </div>
+
+        <div class="form-card">
+            <!-- Stage 1: Basic Travel Details -->
+            <div id="stage-1" class="form-section active">
+                <div class="form-header">
+                    <h1 class="form-title">Reise beginnen</h1>
+                    <p class="form-subtitle">Schritt 1: Grundlegende Reisedetails eingeben</p>
+                </div>
+
+                <form id="travel-details-form">
+                    <div class="section-title">
+                        <i class="fas fa-plane"></i>
+                        Reisedetails
+                    </div>
+
+                    <div class="form-grid">
+                        <!-- Abfahrtsort at the very top -->
+                        <div class="form-group">
+                            <label for="departure-location">Abfahrtsort (Vollständige Adresse) <span class="required">*</span></label>
+                            <input type="text" id="departure-location" name="departure-location" required placeholder="z.B. Musterstraße 123, 80331 München, Deutschland">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="trip-purpose">Reisezweck <span class="required">*</span></label>
+                                <select id="trip-purpose" name="trip-purpose" required>
+                                    <option value="">Bitte wählen</option>
+                                    <option value="business">Geschäftlich</option>
+                                    <option value="training">Training</option>
+                                    <option value="conference">Konferenz</option>
+                                    <option value="customer">Kundenbesuch</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="trip-destination">Reiseziel (Vollständige Adresse) <span class="required">*</span></label>
+                                <input type="text" id="trip-destination" name="trip-destination" required placeholder="z.B. Hauptstraße 456, 10115 Berlin, Deutschland">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="trip-start">Reisebeginn <span class="required">*</span></label>
+                                <input type="date" id="trip-start" name="trip-start" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="trip-end">Reiseende <span class="required">*</span></label>
+                                <input type="date" id="trip-end" name="trip-end" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="trip-description">Beschreibung (Optional)</label>
+                            <textarea id="trip-description" name="trip-description" placeholder="Zusätzliche Details zur Reise..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="trip-currency">Währung <span class="required">*</span></label>
+                            <select id="trip-currency" name="trip-currency" required>
+                                <option value="">Bitte wählen</option>
+                                <option value="EUR" selected>Euro (EUR)</option>
+                                <option value="USD">US-Dollar (USD)</option>
+                                <option value="GBP">Britisches Pfund (GBP)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <div></div>
+                        <button type="button" class="btn btn-primary" onclick="proceedToExpenses()">
+                            Weiter zu Ausgaben
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Stage 2: Daily Expenses -->
+            <div id="stage-2" class="form-section">
+                <div class="form-header">
+                    <h1 class="form-title">Tägliche Ausgaben</h1>
+                    <p class="form-subtitle">Schritt 2: Ausgaben für jeden Reisetag hinzufügen</p>
+                </div>
+
+                <div class="section-title">
+                    <i class="fas fa-calendar-day"></i>
+                    Ausgaben pro Tag
+                </div>
+
+                <div class="expenses-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Tag</th>
+                                <th>Ausgaben</th>
+                                <th>Tagesgesammt</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="daily-expenses-table">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="goBackToDetails()">
+                        <i class="fas fa-arrow-left"></i>
+                        Zurück
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="submitTravel()">
+                        <i class="fas fa-check"></i>
+                        Reise erstellen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div id="expense-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 0.75rem; width: 90%; max-width: 500px;">
+            <h3 style="margin-bottom: 1rem;">Ausgabe hinzufügen</h3>
+            
+            <div class="form-group">
+                <label for="expense-category">Kategorie <span class="required">*</span></label>
+                <select id="expense-category" required>
+                    <option value="">Bitte wählen</option>
+                    <option value="transport">Transport</option>
+                    <option value="lodging">Unterkunft</option>
+                    <option value="meals">Verpflegung</option>
+                    <option value="entertainment">Bewirtung</option>
+                    <option value="other">Sonstiges</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="expense-amount">Betrag <span class="required">*</span></label>
+                <input type="number" id="expense-amount" step="0.01" required placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label for="expense-description">Beschreibung</label>
+                <input type="text" id="expense-description" placeholder="Beschreibung der Ausgabe">
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Abbrechen</button>
+                <button type="button" class="btn btn-primary" onclick="addExpense()">Hinzufügen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDay = null;
+        let travelData = {};
+        let dailyExpenses = {};
+
+        // Stage 1: Travel Details Functions
+        function proceedToExpenses() {
+            // Validate required fields
+            const form = document.getElementById('travel-details-form');
+            const formData = new FormData(form);
+            
+            // Basic validation
+            const requiredFields = ['departure-location', 'trip-purpose', 'trip-destination', 'trip-start', 'trip-end', 'trip-currency'];
+            let valid = true;
+            
+            for (let field of requiredFields) {
+                const value = formData.get(field);
+                if (!value || value.trim() === '') {
+                    valid = false;
+                    document.getElementById(field).style.borderColor = 'var(--error)';
+                } else {
+                    document.getElementById(field).style.borderColor = 'var(--gray-300)';
+                }
+            }
+
+            // Date validation
+            const startDate = new Date(formData.get('trip-start'));
+            const endDate = new Date(formData.get('trip-end'));
+            
+            if (startDate >= endDate) {
+                alert('Das Reiseende muss nach dem Reisebeginn liegen.');
+                return;
+            }
+
+            if (!valid) {
+                alert('Bitte füllen Sie alle Pflichtfelder aus.');
+                return;
+            }
+
+            // Store travel data
+            travelData = {
+                purpose: formData.get('trip-purpose'),
+                destination: formData.get('trip-destination'),
+                startDate: formData.get('trip-start'),
+                endDate: formData.get('trip-end'),
+                description: formData.get('trip-description'),
+                departureLocation: formData.get('departure-location'),
+                currency: formData.get('trip-currency')
+            };
+
+            // Generate daily expense table
+            generateDailyExpenseTable();
+
+            // Switch to stage 2
+            document.getElementById('stage-1').classList.remove('active');
+            document.getElementById('stage-2').classList.add('active');
+            
+            // Update progress steps
+            document.getElementById('step-1').classList.remove('active');
+            document.getElementById('step-1').classList.add('completed');
+            document.getElementById('divider-1').classList.add('completed');
+            document.getElementById('step-2').classList.remove('inactive');
+            document.getElementById('step-2').classList.add('active');
+        }
+
+        function goBackToDetails() {
+            // Switch back to stage 1
+            document.getElementById('stage-2').classList.remove('active');
+            document.getElementById('stage-1').classList.add('active');
+            
+            // Update progress steps
+            document.getElementById('step-1').classList.remove('completed');
+            document.getElementById('step-1').classList.add('active');
+            document.getElementById('divider-1').classList.remove('completed');
+            document.getElementById('step-2').classList.remove('active');
+            document.getElementById('step-2').classList.add('inactive');
+        }
+
+        // Stage 2: Daily Expenses Functions
+        function generateDailyExpenseTable() {
+            const startDate = new Date(travelData.startDate);
+            const endDate = new Date(travelData.endDate);
+            const tableBody = document.getElementById('daily-expenses-table');
+            
+            tableBody.innerHTML = '';
+            dailyExpenses = {};
+
+            let currentDate = new Date(startDate);
+            let dayCount = 1;
+
+            while (currentDate <= endDate) {
+                const dateString = currentDate.toISOString().split('T')[0];
+                const dayName = currentDate.toLocaleDateString('de-DE', { weekday: 'long' });
+                const formattedDate = currentDate.toLocaleDateString('de-DE');
+                
+                dailyExpenses[dateString] = [];
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="day-cell">
+                        <div>${formattedDate}</div>
+                        <div style="font-size: 0.875rem; color: var(--gray-600);">${dayName}</div>
+                    </td>
+                    <td>Tag ${dayCount}</td>
+                    <td>
+                        <div id="expenses-${dateString}">
+                            <div style="color: var(--gray-500); font-style: italic;">Keine Ausgaben</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div id="total-${dateString}" style="font-weight: 600;">€0.00</div>
+                    </td>
+                    <td>
+                        <button class="add-expense-btn" onclick="openExpenseModal('${dateString}')">
+                            <i class="fas fa-plus"></i> Ausgabe hinzufügen
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+                dayCount++;
+            }
+        }
+
+        function openExpenseModal(dateString) {
+            currentDay = dateString;
+            document.getElementById('expense-modal').style.display = 'block';
+            
+            // Clear form
+            document.getElementById('expense-category').value = '';
+            document.getElementById('expense-amount').value = '';
+            document.getElementById('expense-description').value = '';
+        }
+
+        function closeExpenseModal() {
+            document.getElementById('expense-modal').style.display = 'none';
+            currentDay = null;
+        }
+
+        function addExpense() {
+            const category = document.getElementById('expense-category').value;
+            const amount = parseFloat(document.getElementById('expense-amount').value);
+            const description = document.getElementById('expense-description').value;
+
+            if (!category || !amount || amount <= 0) {
+                alert('Bitte füllen Sie alle Pflichtfelder aus.');
+                return;
+            }
+
+            const expense = {
+                id: Date.now(),
+                category,
+                amount,
+                description,
+                currency: travelData.currency
+            };
+
+            dailyExpenses[currentDay].push(expense);
+            updateExpenseDisplay(currentDay);
+            closeExpenseModal();
+        }
+
+        function removeExpense(dateString, expenseId) {
+            dailyExpenses[dateString] = dailyExpenses[dateString].filter(exp => exp.id !== expenseId);
+            updateExpenseDisplay(dateString);
+        }
+
+        function updateExpenseDisplay(dateString) {
+            const expensesContainer = document.getElementById(`expenses-${dateString}`);
+            const totalContainer = document.getElementById(`total-${dateString}`);
+            const expenses = dailyExpenses[dateString];
+
+            if (expenses.length === 0) {
+                expensesContainer.innerHTML = '<div style="color: var(--gray-500); font-style: italic;">Keine Ausgaben</div>';
+                totalContainer.textContent = '€0.00';
+                return;
+            }
+
+            const categoryNames = {
+                'transport': 'Transport',
+                'lodging': 'Unterkunft',
+                'meals': 'Verpflegung',
+                'entertainment': 'Bewirtung',
+                'other': 'Sonstiges'
+            };
+
+            expensesContainer.innerHTML = expenses.map(expense => `
+                <div class="expense-item">
+                    <div class="expense-details">
+                        <div class="expense-amount">€${expense.amount.toFixed(2)}</div>
+                        <div class="expense-description">${categoryNames[expense.category]}${expense.description ? ': ' + expense.description : ''}</div>
+                    </div>
+                    <button class="remove-expense-btn" onclick="removeExpense('${dateString}', ${expense.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            totalContainer.textContent = `€${total.toFixed(2)}`;
+        }
+
+        async function submitTravel() {
+            try {
+                // Prepare travel data for submission
+                const totalExpenses = Object.values(dailyExpenses).flat().reduce((sum, expense) => sum + expense.amount, 0);
+                
+                // Get current user info for employee_name
+                const userData = localStorage.getItem('user');
+                const currentUser = userData ? JSON.parse(userData) : null;
+                
+                if (!currentUser) {
+                    alert('Sie sind nicht angemeldet. Bitte melden Sie sich erneut an.');
+                    window.location.href = '/';
+                    return;
+                }
+                
+                const submissionData = {
+                    employee_name: currentUser.name,
+                    purpose: travelData.purpose,
+                    start_at: travelData.startDate + 'T00:00:00Z', // Convert to ISO format
+                    end_at: travelData.endDate + 'T23:59:59Z',     // Convert to ISO format
+                    departure_location: travelData.departureLocation,
+                    destination_city: extractCityFromAddress(travelData.destination),
+                    destination_country: extractCountryFromAddress(travelData.destination),
+                    total_expenses: totalExpenses, // Include calculated total expenses
+                    cost_center: currentUser.cost_center || null
+                    // Remove status field - the submit endpoint handles this automatically
+                };
+
+                console.log('Submitting travel data:', submissionData);
+
+                // Get authentication token
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Sie sind nicht angemeldet. Bitte melden Sie sich erneut an.');
+                    window.location.href = '/';
+                    return;
+                }
+
+                // Submit to the API using the submit endpoint
+                const response = await fetch('/api/v1/travels/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(submissionData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API Error: ${response.status} - ${errorData.detail || 'Unknown error'}`);
+                }
+
+                const result = await response.json();
+                console.log('Travel created successfully:', result);
+
+                alert('Reise erfolgreich erstellt und zur Genehmigung eingereicht!');
+                window.location.href = 'dashboard.html';
+
+            } catch (error) {
+                console.error('Error submitting travel:', error);
+                alert(`Fehler beim Erstellen der Reise: ${error.message}`);
+            }
+        }
+
+        // Helper functions to extract city and country from full address
+        function extractCityFromAddress(address) {
+            // Try to extract city from address patterns like "Street, 12345 City, Country"
+            const parts = address.split(',').map(part => part.trim());
+            if (parts.length >= 2) {
+                // Look for part with postal code and city (e.g., "12345 City")
+                for (let part of parts) {
+                    if (/^\d{4,5}\s+/.test(part)) {
+                        return part.replace(/^\d{4,5}\s+/, '').trim();
+                    }
+                }
+                // If no postal code pattern, take the second-to-last part
+                if (parts.length >= 2) {
+                    return parts[parts.length - 2];
+                }
+            }
+            // Fallback: take the first part before the first comma
+            return parts[0] || address;
+        }
+
+        function extractCountryFromAddress(address) {
+            // Country is typically the last part after the last comma
+            const parts = address.split(',').map(part => part.trim());
+            if (parts.length >= 2) {
+                return parts[parts.length - 1];
+            }
+            return ''; // No country found
+        }
+
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication first
+            const token = localStorage.getItem('token');
+            const userData = localStorage.getItem('user');
+            
+            if (!token || !userData) {
+                alert('Sie sind nicht angemeldet. Sie werden zur Anmeldung weitergeleitet.');
+                window.location.href = '/';
+                return;
+            }
+
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('trip-start').min = today;
+            document.getElementById('trip-end').min = today;
+
+            // Update end date minimum when start date changes
+            document.getElementById('trip-start').addEventListener('change', function() {
+                document.getElementById('trip-end').min = this.value;
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('expense-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeExpenseModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+2025-09-06 19:26:16,827 - travel_expense_api - INFO - Initializing database with URL: sqlite+aiosqlite:///./app.db
+INFO:     Started server process [86702]
+INFO:     Waiting for application startup.
+2025-09-06 19:26:16,988 - travel_expense_api - INFO - Starting TravelExpense API server...
+2025-09-06 19:26:16,989 - travel_expense_api - INFO - Starting database initialization...
+2025-09-06 19:26:16,989 - travel_expense_api - INFO - Testing database connection...
+2025-09-06 19:26:16,990 - travel_expense_api - INFO - Database connection successful
+2025-09-06 19:26:16,990 - travel_expense_api - INFO - Creating database tables...
+2025-09-06 19:26:16,991 - travel_expense_api - INFO - Database tables created successfully
+2025-09-06 19:26:16,991 - travel_expense_api - INFO - Database initialized successfully
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2025-09-06 19:26:30,240 - travel_expense_api - INFO - Login attempt for email: admin@demo.com
+2025-09-06 19:26:30,252 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/Users/malte/Reisekostenabrechnung/.venv/lib/python3.13/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2025-09-06 19:26:30,514 - travel_expense_api - INFO - Login successful for user: admin@demo.com (ID: 7)
+INFO:     127.0.0.1:49211 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49217 - "GET /api/v1/travels/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49223 - "GET /api/v1/users/ HTTP/1.1" 200 OK
+2025-09-06 19:26:58,291 - travel_expense_api - ERROR - Starlette HTTP 404 error on http://localhost:8000/api/v1/nonexistent: Not Found
+INFO:     127.0.0.1:49227 - "GET /api/v1/nonexistent HTTP/1.1" 404 Not Found
+2025-09-06 19:27:58,630 - travel_expense_api - ERROR - HTTP 401 error on http://localhost:8000/api/v1/travels/: Could not validate credentials
+INFO:     127.0.0.1:49269 - "POST /api/v1/travels/ HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49269 - "GET /dashboard.html HTTP/1.1" 200 OK
+2025-09-06 19:28:02,796 - travel_expense_api - ERROR - HTTP 401 error on http://localhost:8000/api/v1/travels/: Could not validate credentials
+INFO:     127.0.0.1:49269 - "GET /api/v1/travels/ HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:49269 - "GET / HTTP/1.1" 200 OK

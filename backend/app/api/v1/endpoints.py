@@ -3,12 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 import os
 from pathlib import Path
+from datetime import datetime
 
 from ...crud import crud_travel, crud_user
-from ...schemas.travel import Travel, TravelCreate, TravelUpdate, TravelStatusUpdate
+from ...schemas.travel import Travel, TravelCreate, TravelUpdate, TravelStatusUpdate, ReceiptUpdate, Receipt as ReceiptSchema
 from ...models.travel import Receipt
 from ...models.user import UserRole, User as UserModel
 from ..deps import get_db, get_current_user
+from ...services.receipt_parsing import receipt_parser
 
 
 router = APIRouter()
@@ -203,7 +205,7 @@ async def upload_receipt(
     file: UploadFile = File(...),
     current_user: UserModel = Depends(get_current_user)
 ):
-    """Upload a receipt for a specific travel report."""
+    """Upload a receipt for a specific travel report and parse it automatically."""
     travel = await crud_travel.get(db, id=travel_id)
     if not travel:
         raise HTTPException(status_code=404, detail="Travel not found")
@@ -217,26 +219,93 @@ async def upload_receipt(
     if file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="Invalid file type. Only PDF and image files are allowed.")
     
-    # Create the receipt record in the database
-    
     # Create uploads directory if it doesn't exist
     upload_dir = Path("uploads")
     upload_dir.mkdir(exist_ok=True)
     
-    # Save the file
+    # Save the file temporarily for parsing
     file_path = upload_dir / f"receipt_{travel_id}_{file.filename}"
     with open(file_path, "wb") as buffer:
         content = await file.read()
         buffer.write(content)
     
-    # Create receipt record
-    receipt = Receipt(
-        travel_id=travel_id,
-        file_path=str(file_path),
-        amount=None,  # Could be extracted via OCR later
-        currency="EUR",
-        merchant=None
-    )
+    # Parse the receipt using the parsing service
+    try:
+        parsed_data = await receipt_parser.parse_receipt_file(str(file_path), file.content_type)
+        parsing_status = "success" if parsed_data.parsing_confidence > 50 else "low_confidence"
+    except Exception as e:
+        parsed_data = None
+        parsing_status = "failed"
+    
+    # Create receipt record with parsed data
+    receipt_kwargs = {
+        "travel_id": travel_id,
+        "file_path": str(file_path),
+        "original_filename": file.filename,
+        "file_size": len(content),
+        "mime_type": file.content_type,
+        "currency": "EUR",
+        "parsing_status": parsing_status,
+        "parsed_at": datetime.utcnow() if parsed_data else None,
+        "created_at": datetime.utcnow()
+    }
+    
+    # Add parsed data if available
+    if parsed_data:
+        receipt_kwargs.update({
+            "amount": parsed_data.amount,
+            "vat": parsed_data.vat,
+            "vat_rate": parsed_data.vat_rate,
+            "merchant": parsed_data.merchant,
+            "category": parsed_data.category,
+            "date": parsed_data.date,
+            "invoice_number": parsed_data.invoice_number,
+            "payment_method": parsed_data.payment_method,
+            "merchant_address": parsed_data.merchant_address,
+            "merchant_tax_id": parsed_data.merchant_tax_id,
+            "parsing_confidence": parsed_data.parsing_confidence,
+            "ocr_text": parsed_data.ocr_text
+        })
+    
+    receipt = Receipt(**receipt_kwargs)
+    
+    db.add(receipt)
+    await db.commit()
+    await db.refresh(receipt)
+    
+    # Optionally delete the file after parsing (based on your preference)
+    # For now, keep it for debugging/verification
+    
+    return receipt
+
+
+@router.put("/receipts/{receipt_id}", response_model=ReceiptSchema)
+async def update_receipt(
+    *,
+    db: AsyncSession = Depends(get_db),
+    receipt_id: int,
+    receipt_in: ReceiptUpdate,
+    current_user: UserModel = Depends(get_current_user)
+):
+    """Update receipt details like amount, merchant, category, and description."""
+    # Get the receipt
+    receipt = await db.get(Receipt, receipt_id)
+    if not receipt:
+        raise HTTPException(status_code=404, detail="Receipt not found")
+    
+    # Get the associated travel to check permissions
+    travel = await crud_travel.get(db, id=receipt.travel_id)
+    if not travel:
+        raise HTTPException(status_code=404, detail="Associated travel not found")
+    
+    # Check if user can access this travel/receipt
+    if not await _user_can_access_travel(db, current_user, travel):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Update receipt fields if provided
+    update_data = receipt_in.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(receipt, field, value)
     
     db.add(receipt)
     await db.commit()

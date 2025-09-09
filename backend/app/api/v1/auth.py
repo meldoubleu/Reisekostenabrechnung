@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from datetime import timedelta
 
 from ...core.auth import create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, verify_password, get_password_hash
+from ...core.logging import logger
 from ..deps import get_db, get_current_user
 from ...models.user import User as UserModel, UserRole
 from ...crud import crud_user
@@ -47,55 +48,72 @@ class UserResponse(BaseModel):
 async def login(login_data: LoginRequest, db: AsyncSession = Depends(get_db)):
     """Authenticate user and return JWT token."""
     
-    # Get user from database
-    user = await crud_user.get_by_email(db, email=login_data.email)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+    logger.info(f"Login attempt for email: {login_data.email}")
+    
+    try:
+        # Get user from database
+        user = await crud_user.get_by_email(db, email=login_data.email)
+        if not user:
+            logger.warning(f"Login failed: User not found for email {login_data.email}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        # Verify password
+        if not user.password_hash or not verify_password(login_data.password, user.password_hash):
+            logger.warning(f"Login failed: Invalid password for email {login_data.email}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        # Check if user is active
+        if not user.is_active:
+            logger.warning(f"Login failed: Inactive user {login_data.email}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User account is disabled",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        # Create access token
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={
+                "sub": str(user.id),
+                "email": user.email,
+                "name": user.name,
+                "role": user.role.value
+            },
+            expires_delta=access_token_expires
         )
-    
-    # Verify password
-    if not user.password_hash or not verify_password(login_data.password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    # Check if user is active
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User account is disabled",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
-    # Create access token
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={
-            "sub": str(user.id),
-            "email": user.email,
-            "name": user.name,
-            "role": user.role.value
-        },
-        expires_delta=access_token_expires
-    )
-    
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": {
-            "id": user.id,
-            "email": user.email,
-            "name": user.name,
-            "role": user.role.value,
-            "company": user.company or "Demo Company",
-            "department": user.department or "Demo Department"
+        
+        logger.info(f"Login successful for user: {user.email} (ID: {user.id})")
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "role": user.role.value,
+                "company": user.company or "Demo Company",
+                "department": user.department or "Demo Department"
+            }
         }
-    }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during login for {login_data.email}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred during login"
+        )
 
 
 @router.post("/register", response_model=TokenResponse)

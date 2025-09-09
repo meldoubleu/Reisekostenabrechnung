@@ -76,6 +76,33 @@
             color: var(--primary);
         }
 
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: var(--gray-600);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+
+        .nav-link i {
+            font-size: 0.875rem;
+        }
+
         .container {
             max-width: 800px;
             margin: 2rem auto;
@@ -453,16 +480,91 @@
             color: var(--gray-900);
             font-weight: 500;
         }
+
+        .section-description {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .timeline-info {
+            display: flex;
+            gap: 0.75rem;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .info-icon {
+            font-size: 1.25rem;
+            margin-top: 0.125rem;
+        }
+
+        .info-text {
+            color: var(--gray-700);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .travel-summary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .travel-summary h4 {
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .summary-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-item .label {
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .summary-item .value {
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="header-left">
-            <a href="#" class="back-btn">
+            <a href="dashboard.html" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
                 Zurück
             </a>
             <div class="logo">TravelExpense</div>
+        </div>
+        <div class="header-nav">
+            <a href="dashboard.html" class="nav-link">
+                <i class="fas fa-dashboard"></i>
+                Dashboard
+            </a>
+            <a href="receipt-management.html" class="nav-link">
+                <i class="fas fa-receipt"></i>
+                Belege verwalten
+            </a>
         </div>
     </div>
 
@@ -508,6 +610,73 @@
                             <div class="form-group">
                                 <label for="trip-end">Reiseende <span class="required">*</span></label>
                                 <input type="date" id="trip-end" name="trip-end" required>
+                            </div>
+                        </div>
+
+                        <!-- Enhanced Travel Timeline Section -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <i class="fas fa-route"></i>
+                                Detaillierte Reise-Zeitleiste (Optional)
+                            </div>
+                            <div class="section-description">
+                                Für eine genauere Kostenabrechnung können Sie die detaillierten Reisezeiten angeben.
+                            </div>
+
+                            <div class="form-group">
+                                <label for="departure-location">Abfahrtsort</label>
+                                <input type="text" id="departure-location" name="departure-location" placeholder="z.B. München, Deutschland">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="departure-timestamp">Abfahrt von zu Hause/Büro</label>
+                                    <input type="datetime-local" id="departure-timestamp" name="departure-timestamp">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="arrival-destination-timestamp">Ankunft am Zielort</label>
+                                    <input type="datetime-local" id="arrival-destination-timestamp" name="arrival-destination-timestamp">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="departure-destination-timestamp">Abreise vom Zielort</label>
+                                    <input type="datetime-local" id="departure-destination-timestamp" name="departure-destination-timestamp">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="arrival-home-timestamp">Ankunft zu Hause/Büro</label>
+                                    <input type="datetime-local" id="arrival-home-timestamp" name="arrival-home-timestamp">
+                                </div>
+                            </div>
+
+                            <div class="timeline-info">
+                                <div class="info-icon">ℹ️</div>
+                                <div class="info-text">
+                                    <strong>Automatische Berechnung:</strong> Aufenthaltsdauer und Reisezeiten werden automatisch berechnet, sobald Sie die Zeitstempel eingeben.
+                                </div>
+                            </div>
+
+                            <div id="travel-summary" class="travel-summary" style="display: none;">
+                                <h4>Reise-Zusammenfassung</h4>
+                                <div class="summary-item">
+                                    <span class="label">Gesamte Reisedauer:</span>
+                                    <span id="total-duration" class="value">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="label">Aufenthalt am Zielort:</span>
+                                    <span id="stay-duration" class="value">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="label">Anreisezeit:</span>
+                                    <span id="outbound-duration" class="value">-</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="label">Rückreisezeit:</span>
+                                    <span id="return-duration" class="value">-</span>
+                                </div>
                             </div>
                         </div>
 
@@ -593,27 +762,204 @@
             // Hier würde die Logik zum Öffnen der Kamera und zum Scannen des Belegs implementiert
         }
 
-        // Other form-related JS functions can be added here.
+        // Timeline calculation functions
+        function calculateTimeDifference(startDateTime, endDateTime) {
+            if (!startDateTime || !endDateTime) return null;
+            
+            const start = new Date(startDateTime);
+            const end = new Date(endDateTime);
+            
+            if (start >= end) return null;
+            
+            const diffMs = end - start;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+            
+            if (diffDays > 0) {
+                const remainingHours = diffHours % 24;
+                if (remainingHours > 0) {
+                    return `${diffDays} Tag${diffDays > 1 ? 'e' : ''}, ${remainingHours} Std.`;
+                } else {
+                    return `${diffDays} Tag${diffDays > 1 ? 'e' : ''}`;
+                }
+            } else {
+                if (diffMinutes > 0) {
+                    return `${diffHours} Std., ${diffMinutes} Min.`;
+                } else {
+                    return `${diffHours} Std.`;
+                }
+            }
+        }
+
+        function formatDuration(hours, minutes = 0) {
+            if (hours === 0 && minutes === 0) return '0 Min.';
+            if (hours === 0) return `${minutes} Min.`;
+            if (minutes === 0) return `${hours} Std.`;
+            return `${hours} Std., ${minutes} Min.`;
+        }
+
+        function updateTravelSummary() {
+            const departureTime = document.getElementById('departure-timestamp').value;
+            const arrivalDestTime = document.getElementById('arrival-destination-timestamp').value;
+            const departureDestTime = document.getElementById('departure-destination-timestamp').value;
+            const arrivalHomeTime = document.getElementById('arrival-home-timestamp').value;
+
+            const summary = document.getElementById('travel-summary');
+            const totalDurationEl = document.getElementById('total-duration');
+            const stayDurationEl = document.getElementById('stay-duration');
+            const outboundDurationEl = document.getElementById('outbound-duration');
+            const returnDurationEl = document.getElementById('return-duration');
+
+            // Reset all values
+            totalDurationEl.textContent = '-';
+            stayDurationEl.textContent = '-';
+            outboundDurationEl.textContent = '-';
+            returnDurationEl.textContent = '-';
+
+            let hasAnyValues = false;
+
+            // Calculate outbound duration (departure to arrival at destination)
+            if (departureTime && arrivalDestTime) {
+                const outboundDuration = calculateTimeDifference(departureTime, arrivalDestTime);
+                if (outboundDuration) {
+                    outboundDurationEl.textContent = outboundDuration;
+                    hasAnyValues = true;
+                }
+            }
+
+            // Calculate stay duration (arrival at destination to departure from destination)
+            if (arrivalDestTime && departureDestTime) {
+                const stayDuration = calculateTimeDifference(arrivalDestTime, departureDestTime);
+                if (stayDuration) {
+                    stayDurationEl.textContent = stayDuration;
+                    hasAnyValues = true;
+                }
+            }
+
+            // Calculate return duration (departure from destination to arrival home)
+            if (departureDestTime && arrivalHomeTime) {
+                const returnDuration = calculateTimeDifference(departureDestTime, arrivalHomeTime);
+                if (returnDuration) {
+                    returnDurationEl.textContent = returnDuration;
+                    hasAnyValues = true;
+                }
+            }
+
+            // Calculate total duration (departure to arrival home)
+            if (departureTime && arrivalHomeTime) {
+                const totalDuration = calculateTimeDifference(departureTime, arrivalHomeTime);
+                if (totalDuration) {
+                    totalDurationEl.textContent = totalDuration;
+                    hasAnyValues = true;
+                }
+            }
+
+            // Show/hide summary based on whether we have any calculations
+            summary.style.display = hasAnyValues ? 'block' : 'none';
+        }
+
+        function validateTimelineLogic() {
+            const departureTime = document.getElementById('departure-timestamp').value;
+            const arrivalDestTime = document.getElementById('arrival-destination-timestamp').value;
+            const departureDestTime = document.getElementById('departure-destination-timestamp').value;
+            const arrivalHomeTime = document.getElementById('arrival-home-timestamp').value;
+
+            const errors = [];
+
+            // Check logical order of timestamps
+            if (departureTime && arrivalDestTime) {
+                if (new Date(departureTime) >= new Date(arrivalDestTime)) {
+                    errors.push('Abfahrtszeit muss vor der Ankunft am Zielort liegen');
+                }
+            }
+
+            if (arrivalDestTime && departureDestTime) {
+                if (new Date(arrivalDestTime) >= new Date(departureDestTime)) {
+                    errors.push('Ankunft am Zielort muss vor der Abreise vom Zielort liegen');
+                }
+            }
+
+            if (departureDestTime && arrivalHomeTime) {
+                if (new Date(departureDestTime) >= new Date(arrivalHomeTime)) {
+                    errors.push('Abreise vom Zielort muss vor der Ankunft zu Hause liegen');
+                }
+            }
+
+            if (departureTime && arrivalHomeTime) {
+                if (new Date(departureTime) >= new Date(arrivalHomeTime)) {
+                    errors.push('Gesamte Reisezeit: Abfahrt muss vor der Rückkehr liegen');
+                }
+            }
+
+            return errors;
+        }
+
+        function showTimelineErrors(errors) {
+            // Remove existing error messages
+            document.querySelectorAll('.timeline-error').forEach(el => el.remove());
+
+            if (errors.length === 0) return;
+
+            const timelineSection = document.querySelector('.form-section');
+            const errorContainer = document.createElement('div');
+            errorContainer.className = 'alert alert-error timeline-error';
+            errorContainer.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>Zeitlogik-Fehler:</strong>
+                    <ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem;">
+                        ${errors.map(error => `<li>${error}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            timelineSection.insertBefore(errorContainer, timelineSection.firstChild.nextSibling);
+        }
+
+        // Auto-fill form functions
         function fillBusinessTrip() {
+            document.getElementById('trip-purpose').value = 'Geschäftsreise';
+            document.getElementById('trip-destination').value = 'Berlin, Deutschland';
             console.log('Filling form for Business Trip');
         }
+
         function fillTraining() {
+            document.getElementById('trip-purpose').value = 'Weiterbildung/Schulung';
+            document.getElementById('trip-destination').value = 'Hamburg, Deutschland';
             console.log('Filling form for Training');
         }
+
         function fillConference() {
+            document.getElementById('trip-purpose').value = 'Konferenz/Messe';
+            document.getElementById('trip-destination').value = 'Frankfurt am Main, Deutschland';
             console.log('Filling form for Conference');
         }
+
         function fillCustomer() {
+            document.getElementById('trip-purpose').value = 'Kundenbesuch';
+            document.getElementById('trip-destination').value = 'Köln, Deutschland';
             console.log('Filling form for Customer visit');
         }
+
         function clearForm() {
             document.getElementById('travel-form').reset();
+            updateTravelSummary();
+            showTimelineErrors([]);
         }
         async function submitTravel(status) {
             const form = document.getElementById('travel-form');
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Einreichen...';
+
+            // Validate timeline logic before submission
+            const timelineErrors = validateTimelineLogic();
+            if (timelineErrors.length > 0) {
+                showTimelineErrors(timelineErrors);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Reise einreichen';
+                return;
+            }
 
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user || !user.name) {
@@ -626,6 +972,23 @@
             const destinationCity = destinationInput[0]?.trim();
             const destinationCountry = destinationInput[1]?.trim() || 'Deutschland';
 
+            // Collect timeline data
+            const departureLocation = document.getElementById('departure-location').value.trim();
+            const departureTimestamp = document.getElementById('departure-timestamp').value;
+            const arrivalDestTimestamp = document.getElementById('arrival-destination-timestamp').value;
+            const departureDestTimestamp = document.getElementById('departure-destination-timestamp').value;
+            const arrivalHomeTimestamp = document.getElementById('arrival-home-timestamp').value;
+
+            // Calculate days at destination if we have the required timestamps
+            let daysAtDestination = null;
+            if (arrivalDestTimestamp && departureDestTimestamp) {
+                const arrival = new Date(arrivalDestTimestamp);
+                const departure = new Date(departureDestTimestamp);
+                const diffTime = departure - arrival;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                daysAtDestination = Math.max(0, diffDays);
+            }
+
             const travelData = {
                 employee_name: user.name,
                 purpose: document.getElementById('trip-purpose').value,
@@ -635,6 +998,26 @@
                 end_at: new Date(document.getElementById('trip-end').value).toISOString(),
                 status: status
             };
+
+            // Add timeline fields if they have values
+            if (departureLocation) {
+                travelData.departure_location = departureLocation;
+            }
+            if (departureTimestamp) {
+                travelData.departure_timestamp = new Date(departureTimestamp).toISOString();
+            }
+            if (arrivalDestTimestamp) {
+                travelData.arrival_at_destination_timestamp = new Date(arrivalDestTimestamp).toISOString();
+            }
+            if (departureDestTimestamp) {
+                travelData.departure_from_destination_timestamp = new Date(departureDestTimestamp).toISOString();
+            }
+            if (arrivalHomeTimestamp) {
+                travelData.arrival_home_timestamp = new Date(arrivalHomeTimestamp).toISOString();
+            }
+            if (daysAtDestination !== null) {
+                travelData.days_at_destination = daysAtDestination;
+            }
 
             try {
                 const response = await fetch('/api/v1/travels/', {
@@ -681,6 +1064,36 @@
         function handleFiles(files) {
             console.log(files);
         }
+
+        // Add event listeners for timeline fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const timelineFields = [
+                'departure-timestamp',
+                'arrival-destination-timestamp', 
+                'departure-destination-timestamp',
+                'arrival-home-timestamp'
+            ];
+
+            timelineFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('change', function() {
+                        updateTravelSummary();
+                        const errors = validateTimelineLogic();
+                        showTimelineErrors(errors);
+                    });
+
+                    field.addEventListener('blur', function() {
+                        updateTravelSummary();
+                        const errors = validateTimelineLogic();
+                        showTimelineErrors(errors);
+                    });
+                }
+            });
+
+            // Initial calculation in case there are pre-filled values
+            updateTravelSummary();
+        });
     </script>
 </body>
 </html>

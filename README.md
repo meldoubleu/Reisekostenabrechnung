@@ -1,17 +1,31 @@
-# TravelExpense SaaS
+# TravelExpense Management System
 
-A comprehensive travel expense management system with role-based access control, built with FastAPI (backend) and vanilla HTML/CSS/JavaScript (frontend).
+A comprehensive travel expense management system built with FastAPI, SQLAlchemy, and modern web technologies.
 
 ## 🚀 Quick Start
 
-### Start the Application
 ```bash
-./run_local.sh start
+# Start the application
+./run_local.sh
+
+# Check status
+./status.sh
+
+# Run core tests
+./test_core.sh
+
+# Test admin features
+./test_admin_features.sh
+
+# Stop the application
+./scripts/stop_local.sh
 ```
 
-### Run Tests
+Access the application at: http://localhost:8000/api/v1/ui
+
+### Run Essential Tests
 ```bash
-./run_tests.sh
+./test_essential.sh
 ```
 
 ### Stop the Application
@@ -89,28 +103,49 @@ A comprehensive travel expense management system with role-based access control,
 - **Data Consistency**: Unified user and travel data storage
 - **Referential Integrity**: Proper foreign key relationships
 
-## 🧪 Testing
+## 🧪 Essential Testing
 
-### Test Coverage
-- **System Tests**: Basic health checks and connectivity
-- **Integration Tests**: End-to-end user flows and database consistency
-- **Unit Tests**: Individual component testing
+### 🎯 Focus on What Actually Matters
+We test **only the core features that matter for production** - no test bloat!
 
-### Key Validations
-- ✅ All roles (admin, controller, employee) use same database
-- ✅ Admin-created accounts are immediately accessible
-- ✅ Authentication works for all user roles
-- ✅ Role-based access restrictions enforced
+**One Simple Command**: `./test_core.sh`
+
+**9 Essential Tests** covering the most critical functionality:
+
+### Core Features Tested ✅
+- **Authentication**: Registration, login, profile access
+- **Travel Management**: Create and view travel expenses
+- **Security**: Protected endpoints, credential validation  
+- **System Health**: API connectivity and endpoint availability
+- **Complete User Journey**: End-to-end workflow
 
 ### Running Tests
 ```bash
-# Full test suite
-./run_tests.sh
+# Core features only (recommended)
+./test_core.sh
 
-# Individual test categories
-python3 tests/integration/system_test.py
-python3 tests/integration/full_integration_test.py
-pytest tests/  # Unit tests
+# Admin features testing
+./test_admin_features.sh
+
+# More comprehensive tests (if needed)
+./test_essential.sh
+./run_tests.sh
+```
+
+**Result**: All core features pass! 🚀
+- **TestCompleteWorkflow**: End-to-end user workflows
+
+### Running Tests
+```bash
+# Essential features only (recommended)
+./test_essential.sh
+
+# Specific test categories
+python -m pytest tests/test_essential_features.py::TestCoreAuthentication -v
+python -m pytest tests/test_essential_features.py::TestTravelManagement -v
+
+# All essential tests
+python -m pytest tests/test_essential_features.py -v
 ```
 
 ## 🌐 Access Points

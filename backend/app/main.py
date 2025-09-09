@@ -1,12 +1,27 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from .api.v1.routers import router as api_router
 from .db.session import init_db
+from .core.exceptions import (
+    custom_http_exception_handler,
+    custom_validation_exception_handler,
+    custom_general_exception_handler,
+    custom_starlette_exception_handler
+)
+from .core.logging import logger
 from pathlib import Path
 
 app = FastAPI(title="TravelExpense - Reisekostenabrechnung", version="0.1.0")
+
+# Add exception handlers
+app.add_exception_handler(HTTPException, custom_http_exception_handler)
+app.add_exception_handler(RequestValidationError, custom_validation_exception_handler)
+app.add_exception_handler(StarletteHTTPException, custom_starlette_exception_handler)
+app.add_exception_handler(Exception, custom_general_exception_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,7 +33,9 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
+    logger.info("Starting TravelExpense API server...")
     await init_db()
+    logger.info("Database initialized successfully")
 
 # Mount the frontend static files
 frontend_dir = Path(__file__).parent.parent.parent / "frontend"
@@ -123,6 +140,24 @@ async def travel_form_html():
     if form_path.exists():
         return HTMLResponse(content=form_path.read_text(encoding="utf-8"))
     return HTMLResponse(content="<h1>Travel form not found</h1>")
+
+@app.get("/travel-form-new.html")
+async def travel_form_new_html():
+    """Serve the new two-stage travel form page."""
+    frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+    form_path = frontend_dir / "travel-form-start.html"
+    if form_path.exists():
+        return HTMLResponse(content=form_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>New travel form not found</h1>")
+
+@app.get("/travel-form-start.html")
+async def travel_form_start_html():
+    """Serve the travel form start page."""
+    frontend_dir = Path(__file__).parent.parent.parent / "frontend"
+    form_path = frontend_dir / "travel-form-start.html"
+    if form_path.exists():
+        return HTMLResponse(content=form_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Travel form start not found</h1>")
 
 @app.get("/index.html")
 async def index_html():

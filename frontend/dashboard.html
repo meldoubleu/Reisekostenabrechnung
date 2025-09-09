@@ -288,6 +288,12 @@
             overflow: hidden;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--gray-200);
+            margin-top: 1rem;
+        }
+
+        /* Main focus travel table for employees */
+        #employee-travel-table {
+            margin-top: 0;
         }
 
         .travel-list-header {
@@ -648,7 +654,7 @@
             <header class="header">
                 <h1 id="page-title">Dashboard</h1>
                 <div class="header-actions">
-                    <a href="/api/v1/travel-form" class="btn" id="neue-reise-button">
+                    <a href="travel-form-start.html" class="btn" id="neue-reise-button">
                         <i class="fas fa-plus"></i>
                         Neue Reise
                     </a>
@@ -658,72 +664,12 @@
             <main class="content">
                 <!-- Dashboard Page -->
                 <div id="dashboard-page" class="page-section active">
-                    <div class="dashboard-grid" id="personal-stats">
-                        <div class="card stat-card">
-                            <div class="card-header">
-                                <div class="card-title">Aktuelle Reisen</div>
-                                <div class="card-icon">
-                                    <i class="fas fa-plane"></i>
-                                </div>
-                            </div>
-                            <div class="stat-number" id="active-travels">5</div>
-                            <div class="stat-label">Laufende Reisen</div>
-                            <div class="stat-change positive">+2 diese Woche</div>
-                        </div>
-
-                        <div class="card stat-card">
-                            <div class="card-header">
-                                <div class="card-title">Offene Anträge</div>
-                                <div class="card-icon">
-                                    <i class="fas fa-file-invoice"></i>
-                                </div>
-                            </div>
-                            <div class="stat-number" id="pending-requests">0</div>
-                            <div class="stat-label">Zur Genehmigung</div>
-                            <div class="stat-change" id="pending-requests-change"></div>
-                        </div>
-
-                        <div class="card stat-card">
-                            <div class="card-header">
-                                <div class="card-title">Gesamtausgaben</div>
-                                <div class="card-icon">
-                                    <i class="fas fa-euro-sign"></i>
-                                </div>
-                            </div>
-                            <div class="stat-number" id="total-expenses">€0.00</div>
-                            <div class="stat-label">Dieses Jahr</div>
-                            <div class="stat-change" id="budget-change"></div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions - Employee Only -->
-                    <div class="quick-actions" id="employee-actions">
-                        <a href="/api/v1/travel-form" class="quick-action">
-                            <i class="fas fa-plus-circle"></i>
-                            <strong>Neue Reise anlegen</strong>
-                            <div>Erstellen Sie eine neue Geschäftsreise</div>
-                        </a>
-                    </div>
-
-                    <!-- Controller Actions removed - showing only team table -->
-
-                    <!-- Employee Travel List -->
-                    <div class="travel-list" id="employee-travels">
-                        <div class="travel-list-header">
-                            <div class="travel-list-title">Meine Reisen</div>
-                            <a href="#" onclick="showPage('travels')" class="btn btn-secondary">Alle anzeigen</a>
-                        </div>
-                        <div id="recent-travels">
-                            <!-- Will be populated by JavaScript -->
-                        </div>
-                    </div>
-
-                    <!-- Employee Travel Table -->
-                    <div class="travel-list" id="employee-travel-table" style="display: none;">
+                    <!-- Employee Travel Table - Main Focus -->
+                    <div class="travel-list" id="employee-travel-table">
                         <div class="travel-list-header">
                             <div class="travel-list-title">Meine Reisen</div>
                             <a href="#" onclick="exportAllTravelsPDF()" class="btn btn-secondary">
-                                <i class="fas fa-file-pdf"></i> Alle als PDF exportieren
+                                <i class="fas fa-file-pdf"></i> Als PDF exportieren
                             </a>
                         </div>
                         <div class="team-table-container">
@@ -796,8 +742,13 @@
 
         function initUser() {
             const userData = localStorage.getItem('user');
+            const token = localStorage.getItem('token');
+            
             console.log('Raw userData from localStorage:', userData); // Enhanced debug
-            if (!userData) {
+            console.log('Token from localStorage:', token ? 'Present' : 'Missing'); // Enhanced debug
+            
+            if (!userData || !token) {
+                console.log('Missing authentication data, redirecting to login');
                 window.location.href = '/';
                 return;
             }
@@ -828,12 +779,7 @@
                 document.getElementById('controller-overview').style.display = 'block';
                 
                 // Hide employee sections
-                document.getElementById('employee-actions').style.display = 'none';
-                document.getElementById('employee-travels').style.display = 'none';
                 document.getElementById('employee-travel-table').style.display = 'none';
-                
-                // Hide personal stats (not relevant for controllers)
-                document.getElementById('personal-stats').style.display = 'none';
                 
                 // Hide employee navigation and buttons
                 document.getElementById('neue-reise-button').style.display = 'none';
@@ -844,13 +790,8 @@
                 loadTeamOverview();
             } else {
                 console.log('Setting up employee UI'); // Debug line
-                // Show employee sections
-                document.getElementById('employee-actions').style.display = 'grid';
-                document.getElementById('employee-travels').style.display = 'none'; // Hide old list
-                document.getElementById('employee-travel-table').style.display = 'block'; // Show new table
-                
-                // Show personal stats for employees
-                document.getElementById('personal-stats').style.display = 'grid';
+                // Show employee sections - main travel table
+                document.getElementById('employee-travel-table').style.display = 'block';
                 
                 // Show employee navigation and buttons
                 document.getElementById('neue-reise-button').style.display = 'block';
@@ -863,21 +804,6 @@
                 // Load employee-specific data
                 loadTravels();
             }
-
-            // Update stats for controllers
-            if (currentUser.role === 'controller') {
-                updateControllerStats();
-            }
-        }
-
-        function updateControllerStats() {
-            // Update stats for controller role - showing team data
-            document.getElementById('active-travels').textContent = '23';
-            document.getElementById('pending-receipts').textContent = '8';
-            
-            // Update stat labels for controller context
-            document.querySelector('#active-travels').nextElementSibling.textContent = 'Team-Reisen';
-            document.querySelector('#pending-receipts').nextElementSibling.textContent = 'Zur Freigabe';
         }
 
         // Page navigation
@@ -910,47 +836,37 @@
         // Load travel data
         async function loadTravels() {
             try {
-                const response = await fetch('http://localhost:8000/api/v1/travels/');
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.error('No authentication token found');
+                    window.location.href = '/';
+                    return;
+                }
+
+                const response = await fetch('http://localhost:8000/api/v1/travels/', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // Token expired or invalid
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = '/';
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const travels = await response.json();
                 displayTravelTable(travels); 
-                updateEmployeeStats(travels);
             } catch (error) {
                 console.error('Error loading travels:', error);
-                showEmptyState();
+                displayTravelTable([]); // Show empty table
             }
-        }
-
-        function displayRecentTravels(travels) {
-            const container = document.getElementById('recent-travels');
-            
-            if (!travels || travels.length === 0) {
-                showEmptyState();
-                return;
-            }
-
-            container.innerHTML = travels.map(travel => `
-                <div class="travel-item">
-                    <div class="travel-info">
-                        <h3>${travel.destination_city}, ${travel.destination_country}</h3>
-                        <div class="travel-meta">
-                            ${travel.employee_name} • ${formatDate(travel.start_at)} - ${formatDate(travel.end_at)}
-                        </div>
-                    </div>
-                    <div class="travel-status status-${travel.status}">
-                        ${getStatusText(travel.status)}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function showEmptyState() {
-            document.getElementById('recent-travels').innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-plane"></i>
-                    <h3>Noch keine Reisen</h3>
-                    <p>Erstellen Sie Ihre erste Geschäftsreise</p>
-                </div>
-            `;
         }
 
         function displayTravelTable(travels) {
@@ -975,21 +891,6 @@
                     </td>
                 </tr>
             `).join('');
-        }
-
-        function updateEmployeeStats(travels) {
-            const approvedTravels = travels.filter(t => t.status === 'approved').length;
-            const pendingTravels = travels.filter(t => t.status === 'submitted').length;
-            const totalExpenses = travels.reduce((sum, t) => sum + (t.total_expenses || 0), 0);
-
-            document.getElementById('active-travels').textContent = travels.length;
-            document.querySelector('#active-travels').nextElementSibling.textContent = 'Gesamte Reisen';
-
-            document.getElementById('pending-requests').textContent = pendingTravels;
-            document.querySelector('#pending-requests').nextElementSibling.textContent = 'Zur Genehmigung';
-
-            document.getElementById('total-expenses').textContent = `€${totalExpenses.toFixed(2)}`;
-            document.querySelector('#total-expenses').nextElementSibling.textContent = 'Gesamtausgaben YTD';
         }
 
         function viewTravelDetails(travelId) {
@@ -1154,6 +1055,7 @@
 
         function logout() {
             localStorage.removeItem('user');
+            localStorage.removeItem('token');
             window.location.href = '/';
         }
 

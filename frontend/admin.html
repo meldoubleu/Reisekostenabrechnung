@@ -1261,7 +1261,7 @@
                                     <i class="fas fa-user-plus"></i>
                                     Assign
                                 </button>
-                                <button class="btn btn-danger btn-small" onclick="deleteEmployee(${employee.id}, '${employee.name}')" title="Delete Employee">
+                                <button class="btn btn-danger btn-small" onclick="deleteUser(${employee.id}, '${employee.name}')" title="Delete Employee">
                                     <i class="fas fa-trash"></i>
                                     Delete
                                 </button>
@@ -1843,6 +1843,52 @@
                 localStorage.removeItem('user');
                 window.location.href = '/';
             }
+        }
+
+        function openAssignEmployeeModal(employeeId, employeeName) {
+            // Populate dropdowns for assignment
+            const employeeSelect = document.getElementById('assign-employee-select');
+            const controllerSelect = document.getElementById('assign-controller-select');
+
+            // Show only the selected employee (pre-selected)
+            employeeSelect.innerHTML = `<option value="${employeeId}" selected>${employeeName}</option>`;
+
+            // Show all controllers
+            if (dashboardData && dashboardData.controllers) {
+                controllerSelect.innerHTML = dashboardData.controllers.map(controller => 
+                    `<option value="${controller.id}">${controller.name} (${controller.department})</option>`
+                ).join('');
+            } else {
+                controllerSelect.innerHTML = '<option>Loading controllers...</option>';
+            }
+
+            document.getElementById('assign-employee-modal').style.display = 'block';
+        }
+
+        function openGeneralAssignEmployeeModal() {
+            // Populate dropdowns for general assignment
+            const employeeSelect = document.getElementById('assign-employee-select');
+            const controllerSelect = document.getElementById('assign-controller-select');
+
+            // Load all unassigned employees
+            if (dashboardData && dashboardData.unassigned_employees) {
+                employeeSelect.innerHTML = dashboardData.unassigned_employees.map(employee => 
+                    `<option value="${employee.id}">${employee.name} (${employee.email})</option>`
+                ).join('');
+            } else {
+                employeeSelect.innerHTML = '<option>No unassigned employees</option>';
+            }
+
+            // Load all controllers
+            if (dashboardData && dashboardData.controllers) {
+                controllerSelect.innerHTML = dashboardData.controllers.map(controller => 
+                    `<option value="${controller.id}">${controller.name} (${controller.department})</option>`
+                ).join('');
+            } else {
+                controllerSelect.innerHTML = '<option>No controllers available</option>';
+            }
+
+            document.getElementById('assign-employee-modal').style.display = 'block';
         }
     </script>
 </body>
